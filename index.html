@@ -24,7 +24,6 @@
             }
         };
 
-        // Fungsi otomatis: Coba folder images/ -> coba folder utama (root) -> coba URL cadangan -> tampilkan label
         window.handleImageError = function(imgElement, fallbackLabel, fallbackBg, rootFile, fallbackUrl) {
             if (!imgElement) return;
             if (rootFile && !imgElement.dataset.triedRoot) {
@@ -44,23 +43,24 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-teal-500 selection:text-white">
 
-    <!-- Top Bar: Waktu Real-Time -->
+    <!-- Top Bar: Waktu Real-Time & Status Cloud Sync -->
     <div class="bg-slate-900 text-slate-300 text-xs sm:text-sm py-2 px-4 border-b border-slate-800">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
             <div class="flex items-center gap-2">
                 <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span id="realtime-clock" class="font-medium">Memuat Waktu...</span>
             </div>
-            <div class="flex items-center gap-4">
-                <span class="text-slate-400">🗺️ Portal Resmi Wisata Kabupaten Kendal, Jawa Tengah</span>
+            <div class="flex items-center gap-3">
+                <span id="cloud-sync-indicator" class="px-2.5 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-[11px] font-semibold text-teal-300">🌐 Kuota Publik Aktif</span>
+                <span class="hidden md:inline text-slate-400">🗺️ Portal Resmi Wisata Kabupaten Kendal</span>
             </div>
         </div>
     </div>
 
     <!-- Banner Status Admin Aktif -->
     <div id="admin-status-bar" class="hidden bg-amber-500 text-slate-950 px-4 py-2 text-center font-bold text-xs flex flex-wrap items-center justify-center gap-3">
-        <span>⚡ Mode Admin Aktif: Unggah foto langsung ke GitHub agar tampil publik untuk semua orang!</span>
-        <button type="button" onclick="openAdminDashboard(); switchAdminTab('github');" class="bg-slate-950 text-white px-3 py-1 rounded-lg text-xs hover:bg-slate-800">☁️ Pengaturan GitHub Sync</button>
+        <span>⚡ Mode Admin Aktif: Kelola foto, kuota tiket publik & sinkronisasi Cloud!</span>
+        <button type="button" onclick="openAdminDashboard(); switchAdminTab('github');" class="bg-slate-950 text-white px-3 py-1 rounded-lg text-xs hover:bg-slate-800">☁️ Pengaturan Sinkronisasi Publik</button>
         <button type="button" onclick="logoutAdmin()" class="bg-amber-900 text-white px-3 py-1 rounded-lg text-xs hover:bg-amber-950">Keluar Admin</button>
     </div>
 
@@ -190,7 +190,7 @@
                 <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900">Destinasi Wisata Kabupaten Kendal</h2>
                 <div class="w-20 h-1.5 bg-teal-600 mx-auto rounded-full"></div>
                 <p class="text-slate-600 text-base sm:text-lg">
-                    Jelajahi destinasi wisata terbaik di Kendal lengkap dengan foto, informasi tiket, jam operasional, dan fasilitasnya.
+                    Jelajahi destinasi wisata terbaik di Kendal lengkap dengan foto, peta lokasi, informasi tiket, jam operasional, dan sisa kuota harian publik.
                 </p>
 
                 <div class="flex flex-wrap justify-center gap-2 pt-4">
@@ -206,29 +206,81 @@
         </div>
     </section>
 
-    <!-- Bagian Pemesanan Tiket Wisata Online -->
+    <!-- Bagian Pemesanan Tiket Wisata Online (3 TAB LOKET DIGITAL + SISA KUOTA PUBLIK REAL-TIME) -->
     <section id="pemesanan" class="py-20 bg-white border-y border-slate-200 px-4">
         <div class="max-w-5xl mx-auto">
-            <div class="text-center max-w-3xl mx-auto mb-12 space-y-4">
+            <div class="text-center max-w-3xl mx-auto mb-10 space-y-4">
                 <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-teal-50 text-teal-700 font-bold uppercase tracking-widest text-xs border border-teal-200">
-                    🎟️ Loket Digital Resmi
+                    🎟️ Loket Digital Lanjutan Resmi
                 </span>
-                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900">Pemesanan Tiket Wisata Online</h2>
+                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900">Pusat Layanan Tiket Wisata Kendal</h2>
                 <div class="w-20 h-1.5 bg-teal-600 mx-auto rounded-full"></div>
                 <p class="text-slate-600 text-base sm:text-lg">
-                    Pesan tiket masuk destinasi wisata Kabupaten Kendal secara praktis tanpa antre. Dapatkan E-Tiket digital instan dengan kode booking resmi.
+                    Pesan tiket, cek validasi status booking secara global, atau nikmati info promo rombongan khusus.
                 </p>
+
+                <!-- Navigasi 3 Tab Loket Digital -->
+                <div class="flex flex-wrap justify-center gap-2 pt-4">
+                    <button type="button" id="loket-tab-btn-pesan" onclick="switchLoketTab('pesan')" class="px-5 py-2.5 rounded-xl bg-teal-600 text-white font-bold text-xs shadow-sm transition">📝 1. Formulir Pesan Tiket</button>
+                    <button type="button" id="loket-tab-btn-cek" onclick="switchLoketTab('cek')" class="px-5 py-2.5 rounded-xl bg-white text-slate-700 hover:bg-slate-100 font-bold text-xs border border-slate-200 transition">🔍 2. Cek & Validasi Tiket</button>
+                    <button type="button" id="loket-tab-btn-promo" onclick="switchLoketTab('promo')" class="px-5 py-2.5 rounded-xl bg-white text-slate-700 hover:bg-slate-100 font-bold text-xs border border-slate-200 transition">🏷️ 3. Info Promo & Rombongan</button>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                <!-- Formulir Pemesanan Tiket -->
-                <form id="ticket-booking-form" onsubmit="submitTicketBooking(event)" class="lg:col-span-7 bg-slate-50 border border-slate-200 p-6 sm:p-8 rounded-3xl shadow-lg space-y-5">
-                    <h3 class="font-display font-bold text-xl text-slate-900 border-b border-slate-200 pb-3">Data Pemesanan Pengunjung</h3>
+            <!-- TAB 1: FORMULIR PEMESANAN TIKET -->
+            <div id="loket-tab-content-pesan" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <form id="ticket-booking-form" onsubmit="submitTicketBooking(event)" class="lg:col-span-7 bg-slate-50 border border-slate-200 p-6 sm:p-8 rounded-3xl shadow-lg space-y-6">
+                    <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-200 pb-3">
+                        <h3 class="font-display font-bold text-xl text-slate-900">Formulir Pemesanan Pengunjung</h3>
+                        <span id="kuota-harian-badge" class="px-3 py-1 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-bold">🟢 Sisa Kuota: 150 Tiket</span>
+                    </div>
+
+                    <!-- Bar Progres Sisa Kuota Tiket -->
+                    <div class="bg-white p-3.5 rounded-2xl border border-slate-200 space-y-1.5">
+                        <div class="flex justify-between text-xs font-bold">
+                            <span class="text-slate-600">Ketersediaan Kuota Publik Tanggal Ini</span>
+                            <span id="kuota-text-detail" class="text-teal-700">Tersisa 150 dari 150 tiket</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div id="kuota-progress-bar" class="h-full bg-emerald-500 transition-all duration-300" style="width: 100%"></div>
+                        </div>
+                    </div>
                     
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Pilih Destinasi Wisata *</label>
                         <select id="book-destinasi" onchange="updateBookingSummary()" required class="w-full bg-white border border-slate-300 rounded-2xl px-4 py-3 text-slate-900 text-sm font-medium focus:outline-none focus:border-teal-600">
                         </select>
+                    </div>
+
+                    <!-- Kategori Pengunjung dengan Tombol Plus / Minus -->
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 space-y-4">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-teal-800">Jumlah Tiket & Kategori Pengunjung *</label>
+                        
+                        <!-- Kategori Dewasa -->
+                        <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <div>
+                                <span class="text-xs font-bold text-slate-900 block">👤 Dewasa (13+ Tahun)</span>
+                                <span id="label-harga-dewasa" class="text-[11px] text-teal-700 font-semibold">Rp 12.000 /org</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="adjustQty('dewasa', -1)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100">-</button>
+                                <input type="number" id="book-qty-dewasa" min="0" max="50" value="2" oninput="updateBookingSummary()" class="w-12 text-center bg-white border border-slate-300 rounded-lg py-1 text-sm font-bold">
+                                <button type="button" onclick="adjustQty('dewasa', 1)" class="w-8 h-8 rounded-lg bg-teal-600 text-white font-bold hover:bg-teal-700">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Kategori Anak-Anak -->
+                        <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <div>
+                                <span class="text-xs font-bold text-slate-900 block">🧒 Anak-Anak (4-12 Tahun)</span>
+                                <span id="label-harga-anak" class="text-[11px] text-teal-700 font-semibold">Diskon 50%</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="adjustQty('anak', -1)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100">-</button>
+                                <input type="number" id="book-qty-anak" min="0" max="50" value="0" oninput="updateBookingSummary()" class="w-12 text-center bg-white border border-slate-300 rounded-lg py-1 text-sm font-bold">
+                                <button type="button" onclick="adjustQty('anak', 1)" class="w-8 h-8 rounded-lg bg-teal-600 text-white font-bold hover:bg-teal-700">+</button>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -245,70 +297,125 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Tanggal Kunjungan *</label>
-                            <input type="date" id="book-tanggal" onchange="updateBookingSummary()" required class="w-full bg-white border border-slate-300 rounded-2xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-teal-600">
+                            <input type="date" id="book-tanggal" onchange="refreshGlobalDataAndSummary()" required class="w-full bg-white border border-slate-300 rounded-2xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-teal-600">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Jumlah Tiket (Orang) *</label>
-                            <input type="number" id="book-jumlah" min="1" max="50" value="2" oninput="updateBookingSummary()" required class="w-full bg-white border border-slate-300 rounded-2xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-teal-600">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Sesi Kedatangan Masuk *</label>
+                            <select id="book-sesi" onchange="updateBookingSummary()" required class="w-full bg-white border border-slate-300 rounded-2xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-teal-600">
+                                <option value="Sesi Pagi (08:00 - 11:30 WIB)">🌅 Sesi Pagi (08:00 - 11:30 WIB)</option>
+                                <option value="Sesi Siang (12:00 - 14:30 WIB)">☀️ Sesi Siang (12:00 - 14:30 WIB)</option>
+                                <option value="Sesi Sore (15:00 - 17:30 WIB)">🌇 Sesi Sore (15:00 - 17:30 WIB)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Paket Tambahan & Add-on -->
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 space-y-3">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-teal-800">Paket Tambahan & Add-on (Opsional)</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer">
+                                <input type="checkbox" id="addon-gazebo" onchange="updateBookingSummary()" class="w-4 h-4 text-teal-600 rounded">
+                                <span>Sewa Gazebo (+Rp 25.000)</span>
+                            </label>
+                            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer">
+                                <input type="checkbox" id="addon-guide" onchange="updateBookingSummary()" class="w-4 h-4 text-teal-600 rounded">
+                                <span>Pemandu Tour (+Rp 40.000)</span>
+                            </label>
+                            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer">
+                                <input type="checkbox" id="addon-dok" onchange="updateBookingSummary()" class="w-4 h-4 text-teal-600 rounded">
+                                <span>Paket Dokumentasi (+Rp 30.000)</span>
+                            </label>
+                            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer">
+                                <input type="checkbox" id="addon-asuransi" onchange="updateBookingSummary()" class="w-4 h-4 text-teal-600 rounded">
+                                <span>Asuransi Wisata (+Rp 5.000/org)</span>
+                            </label>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Tambahan Parkir Kendaraan</label>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Parkir Kendaraan</label>
                             <select id="book-parkir" onchange="updateBookingSummary()" class="w-full bg-white border border-slate-300 rounded-2xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-teal-600">
                                 <option value="0">Tanpa Parkir (Rp 0)</option>
                                 <option value="3000" selected>Sepeda Motor (Rp 3.000)</option>
                                 <option value="5000">Mobil Pribadi (Rp 5.000)</option>
-                                <option value="15000">Bus / Minibus Wisata (Rp 15.000)</option>
+                                <option value="15000">Bus Pariwisata (Rp 15.000)</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Metode Pembayaran *</label>
                             <select id="book-metode" required class="w-full bg-white border border-slate-300 rounded-2xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-teal-600">
-                                <option value="QRIS (GoPay / OVO / DANA / ShopeePay)">QRIS Instan</option>
-                                <option value="Transfer Bank (BRI / BNI / Mandiri / Jateng)">Transfer Virtual Account</option>
-                                <option value="Bayar di Loket Masuk (Tunai)">Bayar di Loket (COD)</option>
+                                <option value="QRIS Instan">QRIS (GoPay / OVO / DANA / QRIS)</option>
+                                <option value="Virtual Account Bank">Transfer Virtual Account (BRI/BNI/Mandiri)</option>
+                                <option value="Bayar di Loket (Tunai)">Bayar di Loket Masuk (COD)</option>
                             </select>
                         </div>
                     </div>
 
+                    <!-- Kode Promo & Voucher -->
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Catatan Tambahan (Opsional)</label>
-                        <input type="text" id="book-catatan" placeholder="Contoh: Rombongan keluarga / butuh pemandu" class="w-full bg-white border border-slate-300 rounded-2xl px-4 py-2.5 text-slate-900 text-sm focus:outline-none focus:border-teal-600">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Kode Promo / Voucher</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="book-promo-input" placeholder="Coba: KENDAL10 atau LIBURAN10K" class="flex-1 uppercase bg-white border border-slate-300 rounded-2xl px-4 py-2.5 text-xs font-mono font-bold focus:outline-none focus:border-teal-600">
+                            <button type="button" onclick="applyPromoCode()" class="px-4 py-2.5 rounded-2xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800">Pakai</button>
+                        </div>
+                        <p id="promo-feedback" class="hidden text-xs mt-1 font-semibold"></p>
                     </div>
 
-                    <button type="submit" class="w-full py-4 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-display font-bold text-base shadow-lg shadow-teal-600/25 transition flex items-center justify-center gap-2">
-                        <span>✅ Konfirmasi & Terbitkan E-Tiket</span>
+                    <button type="submit" id="book-submit-btn" class="w-full py-4 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-display font-bold text-base shadow-lg shadow-teal-600/25 transition flex items-center justify-center gap-2">
+                        <span>✅ Konfirmasi & Terbitkan E-Tiket QR</span>
                     </button>
                 </form>
 
-                <!-- Ringkasan Pembayaran Real-Time -->
+                <!-- Ringkasan Nota Pembayaran Real-Time -->
                 <div class="lg:col-span-5 bg-slate-900 text-white p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-800 space-y-6 sticky top-24">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-4">
                         <div>
-                            <span class="text-xs text-teal-400 font-bold uppercase tracking-wider block">Ringkasan Pesanan</span>
+                            <span class="text-xs text-teal-400 font-bold uppercase tracking-wider block">Nota Transaksi Pesanan</span>
                             <h3 id="sum-dest-name" class="font-display font-bold text-xl text-white mt-0.5">Air Terjun Curug Sewu</h3>
                         </div>
                         <span id="sum-day-badge" class="px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 font-bold text-xs">Weekday</span>
                     </div>
 
+                    <!-- Indikator Cuaca & Saran Waktu Berkunjung -->
+                    <div class="bg-slate-800/70 p-3.5 rounded-2xl border border-slate-700 flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-2xl">🌤️</span>
+                            <div>
+                                <span class="font-bold text-white block">Prakiraan Cuaca: Cerah Berawan (27°C)</span>
+                                <span class="text-slate-400 text-[11px]">Waktu terbaik: Pukul 08.00 - 11.00 WIB</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="space-y-3 text-sm text-slate-300">
                         <div class="flex justify-between">
-                            <span class="text-slate-400">Tanggal Kunjungan:</span>
-                            <span id="sum-tanggal" class="font-semibold text-white">-</span>
+                            <span class="text-slate-400">Tanggal & Sesi:</span>
+                            <span id="sum-tanggal" class="font-semibold text-white text-right">-</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-slate-400">Harga Satuan Tiket:</span>
-                            <span id="sum-harga-satuan" class="font-semibold text-white">Rp 12.000</span>
+                            <span class="text-slate-400">Tiket Dewasa (<span id="sum-qty-dewasa">2</span> org):</span>
+                            <span id="sum-sub-dewasa" class="font-semibold text-white">Rp 24.000</span>
                         </div>
                         <div class="flex justify-between">
-                            <span id="sum-label-qty">Subtotal Tiket (2 Orang):</span>
-                            <span id="sum-subtotal-tiket" class="font-semibold text-white">Rp 24.000</span>
+                            <span class="text-slate-400">Tiket Anak (<span id="sum-qty-anak">0</span> org):</span>
+                            <span id="sum-sub-anak" class="font-semibold text-white">Rp 0</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-slate-400">Tiket Parkir Kendaraan:</span>
-                            <span id="sum-parkir" class="font-semibold text-white">Rp 3.000</span>
+                            <span class="text-slate-400">Paket Add-on Fasilitas:</span>
+                            <span id="sum-sub-addon" class="font-semibold text-white">Rp 0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Parkir Kendaraan:</span>
+                            <span id="sum-sub-parkir" class="font-semibold text-white">Rp 3.000</span>
+                        </div>
+                        <div id="sum-rombongan-row" class="hidden flex justify-between text-emerald-400 font-medium">
+                            <span>Diskon Rombongan (≥10 Tiket):</span>
+                            <span id="sum-rombongan-val">- Rp 0</span>
+                        </div>
+                        <div id="sum-promo-row" class="hidden flex justify-between text-amber-400 font-medium">
+                            <span>Diskon Kode Promo:</span>
+                            <span id="sum-promo-val">- Rp 0</span>
                         </div>
                     </div>
 
@@ -318,12 +425,59 @@
                     </div>
 
                     <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700/70 text-xs text-slate-300 space-y-1.5">
-                        <p class="font-bold text-teal-300">ℹ️ Ketentuan E-Tiket:</p>
-                        <ul class="list-disc list-inside space-y-1 text-slate-400">
-                            <li>E-Tiket berlaku sesuai tanggal kunjungan yang dipilih.</li>
-                            <li>Tunjukkan kode booking digital kepada petugas loket masuk.</li>
-                            <li>Tiket yang sudah diterbitkan dapat dilihat kembali di menu <strong class="text-white">🎫 Tiket Saya</strong>.</li>
-                        </ul>
+                        <p class="font-bold text-teal-300">💬 Layanan Konfirmasi Loket WA:</p>
+                        <p class="text-slate-400">WhatsApp Resmi Loket Kendal: <strong class="text-white">0895411366802</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: CEK & VALIDASI KODE BOOKING -->
+            <div id="loket-tab-content-cek" class="hidden max-w-2xl mx-auto bg-slate-50 border border-slate-200 p-8 rounded-3xl shadow-lg space-y-6">
+                <div class="text-center space-y-2">
+                    <div class="w-12 h-12 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center mx-auto text-xl font-bold">🔍</div>
+                    <h3 class="font-display font-bold text-2xl text-slate-900">Validasi & Cek Status Tiket Publik</h3>
+                    <p class="text-slate-600 text-sm">Masukkan Nomor WhatsApp atau Kode Booking E-Tiket Anda untuk memverifikasi tiket dari perangkat mana pun.</p>
+                </div>
+
+                <div class="flex gap-2">
+                    <input type="text" id="check-input-val" placeholder="Masukkan KDL-2026-xxxx atau No. HP..." class="flex-1 bg-white border border-slate-300 rounded-2xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-teal-600">
+                    <button type="button" onclick="performTicketValidation()" class="px-6 py-3 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow transition">Cari Tiket</button>
+                </div>
+
+                <div id="check-result-box" class="hidden space-y-3 pt-2"></div>
+            </div>
+
+            <!-- TAB 3: INFO PROMO & DISKON ROMBONGAN -->
+            <div id="loket-tab-content-promo" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gradient-to-br from-teal-900 to-slate-900 text-white p-8 rounded-3xl space-y-4 shadow-xl">
+                    <span class="px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 border border-teal-400/30 text-xs font-bold uppercase">🎉 Potongan Otomatis</span>
+                    <h3 class="font-display font-extrabold text-2xl">Diskon Rombongan Wisata (≥10 Orang)</h3>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        Merencanakan liburan bersama keluarga besar, study tour sekolah, atau rombongan kantor ke Kendal? Dapatkan <strong class="text-teal-300">potongan harga otomatis 10%</strong> langsung pada total pesanan ketika jumlah tiket mencapai 10 orang atau lebih!
+                    </p>
+                    <div class="pt-2">
+                        <button type="button" onclick="switchLoketTab('pesan'); document.getElementById('book-qty-dewasa').value = 10; updateBookingSummary();" class="px-5 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs transition">Pesan Paket Rombongan Sekarang</button>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-slate-200 p-8 rounded-3xl space-y-4 shadow-xl">
+                    <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold uppercase">🎟️ Kode Voucher Spesial</span>
+                    <h3 class="font-display font-extrabold text-2xl text-slate-900">Kupon Diskon Aktif</h3>
+                    <div class="space-y-3">
+                        <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex justify-between items-center">
+                            <div>
+                                <span class="font-mono font-extrabold text-teal-700 text-base">KENDAL10</span>
+                                <p class="text-xs text-slate-600">Diskon spesial 10% untuk semua destinasi.</p>
+                            </div>
+                            <button type="button" onclick="document.getElementById('book-promo-input').value='KENDAL10'; switchLoketTab('pesan'); applyPromoCode();" class="px-3 py-1.5 rounded-xl bg-slate-900 text-white font-bold text-xs">Gunakan</button>
+                        </div>
+                        <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex justify-between items-center">
+                            <div>
+                                <span class="font-mono font-extrabold text-teal-700 text-base">LIBURAN10K</span>
+                                <p class="text-xs text-slate-600">Potongan langsung Rp 10.000 untuk transaksi.</p>
+                            </div>
+                            <button type="button" onclick="document.getElementById('book-promo-input').value='LIBURAN10K'; switchLoketTab('pesan'); applyPromoCode();" class="px-3 py-1.5 rounded-xl bg-slate-900 text-white font-bold text-xs">Gunakan</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -373,7 +527,7 @@
                 <div class="w-10 h-10 rounded-xl bg-teal-600 flex items-center justify-center text-white font-display font-bold text-lg">K</div>
                 <div>
                     <span class="font-display font-bold text-white text-base">Wisata Kabupaten Kendal</span>
-                    <span class="text-xs text-slate-400 block">Portal Informasi & Loket Pemesanan E-Tiket Wisata Modern</span>
+                    <span class="text-xs text-slate-400 block">Portal Informasi & Loket Pemesanan E-Tiket Wisata Modern • WA Loket: 0895411366802</span>
                 </div>
             </div>
             <p class="text-xs text-slate-400 text-center md:text-right">
@@ -402,7 +556,7 @@
                         <span id="eticket-name" class="font-bold text-slate-900">Budi Santoso</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-slate-500">No. WhatsApp / HP:</span>
+                        <span class="text-slate-500">No. WhatsApp Pemesan:</span>
                         <span id="eticket-hp" class="font-bold text-slate-900">081234567890</span>
                     </div>
                     <div class="flex justify-between">
@@ -410,12 +564,20 @@
                         <span id="eticket-date" class="font-bold text-teal-700">2026-11-21</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-slate-500">Jumlah Pengunjung:</span>
-                        <span id="eticket-qty" class="font-bold text-slate-900">2 Orang</span>
+                        <span class="text-slate-500">Sesi Kedatangan:</span>
+                        <span id="eticket-sesi" class="font-semibold text-slate-800">Sesi Pagi</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Jumlah & Kategori:</span>
+                        <span id="eticket-qty" class="font-bold text-slate-900">2 Dewasa</span>
+                    </div>
+                    <div id="eticket-addons-row" class="hidden flex justify-between">
+                        <span class="text-slate-500">Paket Add-on:</span>
+                        <span id="eticket-addons-text" class="font-semibold text-slate-800 text-right">Tour Guide</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-slate-500">Metode Bayar:</span>
-                        <span id="eticket-method" class="font-semibold text-slate-800 text-right max-w-[180px]">QRIS Instan</span>
+                        <span id="eticket-method" class="font-semibold text-slate-800 text-right">QRIS Instan</span>
                     </div>
                     <div class="flex justify-between pt-2 border-t border-slate-200">
                         <span class="text-slate-500 font-bold">Total Dibayar:</span>
@@ -423,15 +585,34 @@
                     </div>
                 </div>
 
-                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 text-center space-y-1">
-                    <div class="font-mono text-xs tracking-[0.25em] text-slate-800 font-bold">||||| || |||| ||| ||||| ||</div>
-                    <p class="text-[11px] text-slate-500">Scan atau tunjukkan kode ini di gerbang masuk objek wisata.</p>
+                <!-- QR Code Canvas Visual -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-center space-y-2">
+                    <canvas id="eticket-qr-canvas" width="130" height="130" class="mx-auto rounded-xl border border-slate-300 bg-white p-1.5 shadow-sm"></canvas>
+                    <p id="qr-code-text" class="font-mono font-bold text-xs text-slate-800 tracking-wider">KDL-VERIFIED</p>
+                    <p class="text-[11px] text-slate-500">Pindai QR code ini di gerbang masuk lokasi wisata.</p>
+                </div>
+
+                <!-- Info Nomor WhatsApp Resmi Loket -->
+                <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 text-center space-y-1">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-800 block">📞 Layanan Konfirmasi WhatsApp Resmi</span>
+                    <span class="font-mono font-extrabold text-base text-emerald-950 block">0895411366802</span>
+                    <p class="text-[11px] text-emerald-700">Kirimkan bukti & kode booking Anda ke nomor WhatsApp di atas untuk konfirmasi cepat di loket masuk.</p>
                 </div>
             </div>
 
-            <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex gap-2">
-                <button type="button" onclick="window.print()" class="flex-1 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition">🖨️ Cetak / Simpan PDF</button>
-                <button type="button" onclick="closeEticketModal()" class="flex-1 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs transition">Selesai</button>
+            <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex flex-col gap-2">
+                <button type="button" onclick="sendTicketToOfficialWhatsApp()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-1.5">
+                    <span>💬 Kirim Konfirmasi ke WA Loket (0895411366802)</span>
+                </button>
+                <div class="flex gap-2">
+                    <button type="button" onclick="sendTicketToWhatsApp()" class="flex-1 py-2.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 font-bold text-xs transition flex items-center justify-center gap-1">
+                        <span>📲 Simpan ke WA Saya</span>
+                    </button>
+                    <button type="button" onclick="window.print()" class="flex-1 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition">
+                        🖨️ Cetak PDF
+                    </button>
+                </div>
+                <button type="button" onclick="closeEticketModal()" class="w-full py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs transition">Selesai</button>
             </div>
         </div>
     </div>
@@ -442,20 +623,18 @@
             <div class="bg-slate-900 text-white p-6 flex justify-between items-center">
                 <div>
                     <h3 class="font-display font-bold text-xl">🎫 Riwayat Pemesanan Tiket Saya</h3>
-                    <p class="text-xs text-slate-400">Daftar E-Tiket yang telah Anda pesan di perangkat ini</p>
+                    <p class="text-xs text-slate-400">Daftar E-Tiket yang telah Anda pesan</p>
                 </div>
                 <button type="button" onclick="closeMyTicketsModal()" class="w-9 h-9 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold hover:bg-slate-700">✕</button>
             </div>
-            <div id="mytickets-list" class="p-6 max-h-[60vh] overflow-y-auto space-y-3">
-                <!-- Diisi secara dinamis -->
-            </div>
+            <div id="mytickets-list" class="p-6 max-h-[60vh] overflow-y-auto space-y-3"></div>
         </div>
     </div>
 
-    <!-- Modal Detail Informasi Wisata -->
+    <!-- Modal Detail Informasi Wisata + PETA LOKASI GOOGLE MAPS -->
     <div id="detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200 my-8">
-            <div class="relative h-64 sm:h-80 bg-slate-900">
+            <div class="relative h-64 sm:h-72 bg-slate-900">
                 <img id="modal-img" src="" alt="Detail Wisata" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
                 <button type="button" onclick="closeDetailModal()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-slate-950/70 hover:bg-slate-950 text-white flex items-center justify-center font-bold text-lg transition">✕</button>
@@ -464,7 +643,7 @@
                     <h2 id="modal-title" class="font-display font-extrabold text-2xl sm:text-3xl text-white">Nama Destinasi</h2>
                 </div>
             </div>
-            <div class="p-6 sm:p-8 space-y-6 max-h-[60vh] overflow-y-auto">
+            <div class="p-6 sm:p-8 space-y-6 max-h-[65vh] overflow-y-auto">
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs sm:text-sm bg-slate-50 p-4 rounded-2xl border border-slate-200">
                     <div>
                         <span class="text-slate-400 block font-medium">Lokasi</span>
@@ -475,8 +654,8 @@
                         <span id="modal-hours" class="font-bold text-slate-900">08:00 - 17:00</span>
                     </div>
                     <div>
-                        <span class="text-slate-400 block font-medium">Tiket Masuk</span>
-                        <span id="modal-ticket" class="font-bold text-teal-700">Rp 10.000</span>
+                        <span class="text-slate-400 block font-medium">Sisa Kuota Publik</span>
+                        <span id="modal-quota-badge" class="font-bold text-emerald-700">Tersedia 150 Tiket</span>
                     </div>
                 </div>
 
@@ -485,9 +664,28 @@
                     <p id="modal-desc" class="text-slate-600 text-sm leading-relaxed">Penjelasan lengkap...</p>
                 </div>
 
-                <div class="space-y-2">
-                    <h4 class="font-display font-bold text-slate-900 text-base">Tarif Parkir Kendaraan</h4>
-                    <p id="modal-parking" class="text-slate-600 text-sm font-medium">Motor: Rp 3.000 | Mobil: Rp 5.000</p>
+                <!-- Peta Lokasi Google Maps Embed -->
+                <div class="space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-display font-bold text-slate-900 text-base flex items-center gap-1.5">📍 Peta Lokasi & Rute</h4>
+                        <a id="modal-maps-link" href="#" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 font-bold text-xs transition">
+                            🗺️ Buka di Google Maps ↗
+                        </a>
+                    </div>
+                    <div class="w-full h-56 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-inner">
+                        <iframe id="modal-maps-iframe" src="" class="w-full h-full border-0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs sm:text-sm">
+                    <div>
+                        <span class="text-slate-400 block font-medium">Tarif Tiket Masuk</span>
+                        <span id="modal-ticket" class="font-bold text-teal-700">Rp 12.000</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-medium">Tarif Parkir Kendaraan</span>
+                        <span id="modal-parking" class="font-bold text-slate-800">Motor Rp 3.000 | Mobil Rp 5.000</span>
+                    </div>
                 </div>
 
                 <div class="space-y-2">
@@ -509,7 +707,7 @@
         </div>
     </div>
 
-    <!-- Modal Ganti Foto (Upload Langsung Publik ke GitHub) -->
+    <!-- Modal Ganti Foto -->
     <div id="photo-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-5 shadow-2xl my-8">
             <div class="flex justify-between items-center">
@@ -518,17 +716,16 @@
             </div>
             <input type="hidden" id="photo-dest-id">
 
-            <!-- Status GitHub Sync -->
             <div id="photo-github-badge" class="p-3 rounded-2xl bg-teal-50 border border-teal-200 text-xs text-teal-900 flex items-center justify-between gap-2">
-                <span>🌐 Mode Publik: Foto otomatis diunggah ke GitHub agar dilihat semua orang.</span>
-                <button type="button" onclick="closePhotoModal(); openAdminDashboard(); switchAdminTab('github');" class="px-2.5 py-1 rounded-lg bg-teal-700 text-white font-bold text-[11px] shrink-0">Atur Token</button>
+                <span>🌐 Mode Publik: Foto otomatis tersinkron ke Cloud/GitHub agar dilihat semua orang.</span>
+                <button type="button" onclick="closePhotoModal(); openAdminDashboard(); switchAdminTab('github');" class="px-2.5 py-1 rounded-lg bg-teal-700 text-white font-bold text-[11px] shrink-0">Atur Sync</button>
             </div>
 
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">1. Pilih Foto dari Galeri HP / Komputer</label>
                     <input type="file" id="photo-file-input" accept="image/*" onchange="handlePhotoUpload(event)" class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-teal-600 file:text-white hover:file:bg-teal-700 cursor-pointer border border-slate-200 rounded-2xl p-2">
-                    <p id="photo-upload-status" class="hidden text-xs font-semibold text-teal-700 mt-2 animate-pulse">⏳ Sedang mengunggah foto ke GitHub agar tampil publik...</p>
+                    <p id="photo-upload-status" class="hidden text-xs font-semibold text-teal-700 mt-2 animate-pulse">⏳ Sedang mengunggah foto agar tampil publik...</p>
                 </div>
                 <div class="relative flex py-1 items-center">
                     <div class="flex-grow border-t border-slate-200"></div>
@@ -575,16 +772,16 @@
             <div class="bg-slate-900 text-white p-6 flex justify-between items-center">
                 <div>
                     <h3 class="font-display font-bold text-xl">Dashboard Administrator Kendal</h3>
-                    <p class="text-xs text-slate-400">Kelola destinasi, unggah foto publik langsung ke GitHub, dan pantau tiket</p>
+                    <p class="text-xs text-slate-400">Kelola destinasi, kuota tiket publik, Cloud Sync, dan pantau pesanan</p>
                 </div>
                 <button type="button" onclick="closeAdminDashboard()" class="w-10 h-10 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-lg hover:bg-slate-700">✕</button>
             </div>
 
             <div class="flex flex-wrap border-b border-slate-200 bg-slate-50 px-6 pt-4 gap-2">
-                <button type="button" id="tab-btn-destinasi" onclick="switchAdminTab('destinasi')" class="px-4 py-2.5 rounded-t-xl font-bold text-xs bg-white text-teal-700 border-t border-x border-slate-200 transition">Kelola Destinasi</button>
+                <button type="button" id="tab-btn-destinasi" onclick="switchAdminTab('destinasi')" class="px-4 py-2.5 rounded-t-xl font-bold text-xs bg-white text-teal-700 border-t border-x border-slate-200 transition">Kelola Destinasi & Kuota</button>
                 <button type="button" id="tab-btn-tambah" onclick="switchAdminTab('tambah')" class="px-4 py-2.5 rounded-t-xl font-bold text-xs text-slate-600 hover:text-slate-900 transition flex items-center gap-1">➕ Buat Destinasi</button>
-                <button type="button" id="tab-btn-github" onclick="switchAdminTab('github')" class="px-4 py-2.5 rounded-t-xl font-bold text-xs text-slate-600 hover:text-slate-900 transition flex items-center gap-1">☁️ Publish Publik (GitHub)</button>
-                <button type="button" id="tab-btn-pesanan" onclick="switchAdminTab('pesanan')" class="px-4 py-2.5 rounded-t-xl font-bold text-xs text-slate-600 hover:text-slate-900 transition flex items-center gap-1">🎟️ Data Tiket</button>
+                <button type="button" id="tab-btn-github" onclick="switchAdminTab('github')" class="px-4 py-2.5 rounded-t-xl font-bold text-xs text-slate-600 hover:text-slate-900 transition flex items-center gap-1">☁️ Publish Publik (Cloud)</button>
+                <button type="button" id="tab-btn-pesanan" onclick="switchAdminTab('pesanan')" class="px-4 py-2.5 rounded-t-xl font-bold text-xs text-slate-600 hover:text-slate-900 transition flex items-center gap-1">🎟️ Data Tiket Publik</button>
             </div>
 
             <div class="p-6 sm:p-8 max-h-[65vh] overflow-y-auto space-y-6">
@@ -593,7 +790,7 @@
                     <div class="flex flex-wrap justify-between items-center gap-2">
                         <h4 class="font-display font-bold text-slate-900 text-base">Daftar Destinasi Saat Ini</h4>
                         <div class="flex gap-2">
-                            <button type="button" onclick="publishDataJsonToGitHub()" class="px-3.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow">☁️ Sinkronkan Publik</button>
+                            <button type="button" onclick="publishAllPublicData()" class="px-3.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow">☁️ Sinkronkan Publik</button>
                             <button type="button" onclick="resetAllAdminData()" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs border border-rose-200">Reset Default</button>
                         </div>
                     </div>
@@ -633,15 +830,19 @@
                                 <input type="number" id="edit-dest-weekend" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
                             </div>
                             <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Kuota Tiket Harian (Orang)</label>
+                                <input type="number" id="edit-dest-quota" min="0" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                            </div>
+                            <div>
                                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Jam Operasional</label>
                                 <input type="text" id="edit-dest-hours" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
                             </div>
-                            <div>
+                            <div class="sm:col-span-2">
                                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Info Parkir</label>
                                 <input type="text" id="edit-dest-parking" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
                             </div>
                             <div class="sm:col-span-2">
-                                <label class="block text-xs font-bold text-teal-800 uppercase mb-1">📷 Unggah Foto Baru Langsung (Otomatis Publik ke GitHub)</label>
+                                <label class="block text-xs font-bold text-teal-800 uppercase mb-1">📷 Unggah Foto Baru Langsung (Otomatis Publik)</label>
                                 <input type="file" id="edit-dest-file" accept="image/*" onchange="handleEditBoxPhotoUpload(event)" class="w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-teal-600 file:text-white bg-white border border-teal-300 rounded-xl p-1.5 mb-2">
                                 <input type="text" id="edit-dest-photo" placeholder="images/cahaya.jpg atau https://..." class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-teal-600">
                             </div>
@@ -704,6 +905,10 @@
                                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Harga Tiket Weekend (Rp)</label>
                                 <input type="number" id="new-dest-weekend" required value="15000" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs">
                             </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Kuota Tiket Harian (Orang)</label>
+                                <input type="number" id="new-dest-quota" required value="150" min="1" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                            </div>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Upload Foto dari HP/Laptop atau Masukkan Link URL</label>
@@ -722,43 +927,54 @@
                     </form>
                 </div>
 
-                <!-- Tab Pengaturan Publish Publik (GitHub Sync) -->
-                <div id="admin-tab-github" class="hidden space-y-4">
-                    <div class="bg-teal-50 border border-teal-200 p-4 rounded-2xl space-y-2 text-xs text-teal-950">
-                        <h4 class="font-display font-bold text-sm text-teal-900">☁️ Cara Kerja Upload Foto Otomatis Publik</h4>
+                <!-- Tab Pengaturan Publish Publik (Cloud Firebase + GitHub Sync) -->
+                <div id="admin-tab-github" class="hidden space-y-5">
+                    <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl space-y-3 text-xs text-emerald-950">
+                        <h4 class="font-display font-bold text-sm text-emerald-900">⚡ 1. Sinkronisasi Kuota & Tiket Publik Real-Time (Firebase Cloud)</h4>
                         <p class="leading-relaxed">
-                            Secara bawaan, upload foto di browser hanya tersimpan di HP Anda sendiri. Dengan menghubungkan <strong>GitHub Personal Access Token</strong> sekali saja di bawah ini, setiap kali Anda mengklik <strong>"📷 Ganti Foto"</strong> dan memilih foto dari galeri HP, website ini akan <strong>otomatis mengunggah file foto tersebut ke folder <code>images/</code> di GitHub Anda</strong> dan memperbarui file <code>wisata-data.json</code> sehingga <strong>seluruh pengunjung publik</strong> langsung melihat foto baru Anda!
+                            Agar setiap kali pengunjung dari HP mana pun memesan tiket, <strong>sisa kuota langsung berkurang untuk semua orang secara real-time</strong> tanpa perlu token login di HP pengunjung, masukkan URL <strong>Firebase Realtime Database</strong> Anda di bawah ini:
                         </p>
+                        <div>
+                            <label class="block text-[11px] font-bold text-emerald-900 uppercase mb-1">Firebase Realtime Database URL</label>
+                            <input type="url" id="fb-db-url" placeholder="https://nama-project-default-rtdb.firebaseio.com" class="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2 text-xs font-mono">
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Username GitHub</label>
-                            <input type="text" id="gh-owner" value="Adriyan-hub" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nama Repository</label>
-                            <input type="text" id="gh-repo" value="wisata" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">GitHub Personal Access Token (Classic / Fine-Grained)</label>
-                        <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs">
-                        <p class="text-[11px] text-slate-500 mt-1">
-                            Buat token di GitHub: <strong>Settings → Developer settings → Personal access tokens → Tokens (classic)</strong> → centang <strong>repo</strong>. Token hanya disimpan aman di perangkat admin Anda.
+                    <div class="bg-teal-50 border border-teal-200 p-4 rounded-2xl space-y-3 text-xs text-teal-950">
+                        <h4 class="font-display font-bold text-sm text-teal-900">☁️ 2. Sinkronisasi Foto & Data Destinasi Publik (GitHub Repository)</h4>
+                        <p class="leading-relaxed">
+                            Menyimpan perubahan foto, harga, dan kuota dasar ke repository GitHub Anda (<code>wisata-data.json</code> & <code>images/</code>) agar tampil publik di GitHub Pages.
                         </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Username GitHub</label>
+                                <input type="text" id="gh-owner" value="Adriyan-hub" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Nama Repository</label>
+                                <input type="text" id="gh-repo" value="wisata" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">GitHub Personal Access Token (Opsional jika pakai Firebase)</label>
+                            <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                        </div>
                     </div>
+
                     <div class="flex flex-wrap gap-2">
-                        <button type="button" onclick="saveGitHubConfig()" class="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow">💾 Simpan Koneksi GitHub</button>
-                        <button type="button" onclick="publishDataJsonToGitHub()" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow">🚀 Sinkronkan Data Sekarang</button>
+                        <button type="button" onclick="saveCloudAndGitHubConfig()" class="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow">💾 Simpan Pengaturan Publik</button>
+                        <button type="button" onclick="publishAllPublicData()" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow">🚀 Sinkronkan Semua Data Sekarang</button>
                     </div>
                 </div>
 
                 <!-- Tab Data Pemesanan Tiket -->
                 <div id="admin-tab-pesanan" class="hidden space-y-4">
-                    <div class="flex justify-between items-center">
-                        <h4 class="font-display font-bold text-slate-900 text-base">Data Pemesanan Tiket Masuk</h4>
-                        <button type="button" onclick="clearAllBookings()" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs border border-rose-200">Hapus Riwayat Tiket</button>
+                    <div class="flex flex-wrap justify-between items-center gap-2">
+                        <h4 class="font-display font-bold text-slate-900 text-base">Data Pemesanan Tiket Masuk (Publik)</h4>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="syncGlobalBookingsFromCloud(true)" class="px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold text-xs border border-teal-200">🔄 Muat Ulang</button>
+                            <button type="button" onclick="clearAllBookings()" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs border border-rose-200">Hapus Riwayat & Pulihkan Kuota</button>
+                        </div>
                     </div>
                     <div id="admin-bookings-list" class="space-y-3"></div>
                 </div>
@@ -767,49 +983,74 @@
     </div>
 
     <!-- Toast Notification -->
-    <div id="toast-box" class="fixed bottom-6 right-6 z-50 hidden items-center gap-3 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl border border-slate-700 text-xs sm:text-sm animate-in slide-in-from-bottom duration-200">
+    <div id="toast-box" class="fixed bottom-6 left-6 z-50 hidden items-center gap-3 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl border border-slate-700 text-xs sm:text-sm animate-in slide-in-from-bottom duration-200">
         <span class="w-2.5 h-2.5 rounded-full bg-teal-400"></span>
         <span id="toast-message">Notifikasi berhasil</span>
     </div>
 
+    <!-- FITUR MODERN: ASISTEN VIRTUAL WISATA AI (SMART KENDAL CONCIERGE) -->
+    <div class="fixed bottom-6 right-6 z-40">
+        <div id="ai-chat-window" class="hidden mb-3 w-80 sm:w-[400px] bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col">
+            <div class="bg-gradient-to-r from-slate-900 via-teal-900 to-teal-800 text-white p-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-teal-500/20 border border-teal-400/40 flex items-center justify-center text-xl shadow-inner">✨</div>
+                    <div>
+                        <h4 class="font-display font-bold text-sm leading-tight flex items-center gap-1.5">
+                            <span>Kendal Smart AI Guide</span>
+                            <span class="px-1.5 py-0.5 rounded bg-teal-500 text-slate-950 font-extrabold text-[9px] uppercase">PRO</span>
+                        </h4>
+                        <span class="text-[11px] text-teal-200 flex items-center gap-1.5 mt-0.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> WA Loket: 0895411366802
+                        </span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button type="button" onclick="resetAiChatHistory()" title="Reset Percakapan" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-xs transition">🔄</button>
+                    <button type="button" onclick="toggleAiChat()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-sm font-bold transition">✕</button>
+                </div>
+            </div>
+
+            <div id="ai-chat-messages" class="p-4 h-80 overflow-y-auto space-y-3 bg-slate-50 text-xs">
+                <div class="bg-white border border-slate-200 p-3.5 rounded-2xl rounded-tl-none text-slate-700 shadow-sm space-y-2 leading-relaxed">
+                    <p class="font-bold text-teal-800">Halo! Selamat datang di Kabupaten Kendal 👋</p>
+                    <p>Saya adalah <strong>Asisten Wisata AI</strong> yang memahami seluruh info destinasi, sisa kuota tiket publik real-time, lokasi Google Maps, hingga rekomendasi kuliner legendaris Kendal.</p>
+                    <p class="text-[11px] text-slate-500">Pilih topik cepat di bawah atau ketik pertanyaan Anda:</p>
+                </div>
+            </div>
+
+            <div class="px-3 py-2.5 bg-slate-100 border-t border-slate-200 flex gap-1.5 overflow-x-auto">
+                <button type="button" onclick="sendQuickAiPrompt('Buatkan itinerary wisata 1 hari di Kendal untuk keluarga')" class="px-3 py-1.5 rounded-full bg-white border border-slate-300 text-[11px] font-semibold text-slate-700 whitespace-nowrap hover:bg-teal-50 hover:border-teal-400 transition">🗓️ Itinerary 1 Hari</button>
+                <button type="button" onclick="sendQuickAiPrompt('Cek harga dan sisa kuota tiket semua destinasi Kendal')" class="px-3 py-1.5 rounded-full bg-white border border-slate-300 text-[11px] font-semibold text-slate-700 whitespace-nowrap hover:bg-teal-50 hover:border-teal-400 transition">🎟️ Harga & Kuota</button>
+                <button type="button" onclick="sendQuickAiPrompt('Rekomendasi kuliner khas Kendal yang wajib dicoba?')" class="px-3 py-1.5 rounded-full bg-white border border-slate-300 text-[11px] font-semibold text-slate-700 whitespace-nowrap hover:bg-teal-50 hover:border-teal-400 transition">🍲 Kuliner Khas</button>
+                <button type="button" onclick="sendQuickAiPrompt('Wisata alam sejuk dan pegunungan di Kendal apa saja?')" class="px-3 py-1.5 rounded-full bg-white border border-slate-300 text-[11px] font-semibold text-slate-700 whitespace-nowrap hover:bg-teal-50 hover:border-teal-400 transition">⛰️ Wisata Alam</button>
+            </div>
+
+            <form onsubmit="handleAiChatSubmit(event)" class="p-3 bg-white border-t border-slate-200 flex gap-2">
+                <input type="text" id="ai-chat-input" placeholder="Tanya rute, kuota tiket, atau kuliner..." class="flex-1 bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-teal-600">
+                <button type="submit" class="px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-sm transition">Kirim</button>
+            </form>
+        </div>
+
+        <button type="button" onclick="toggleAiChat()" class="ml-auto flex items-center gap-2.5 px-5 py-3.5 rounded-full bg-gradient-to-r from-slate-900 to-teal-900 hover:from-slate-800 hover:to-teal-800 text-white font-display font-bold text-xs sm:text-sm shadow-2xl border border-teal-500/30 transition hover:scale-105">
+            <span class="text-lg">✨</span>
+            <span>Tanya Pemandu AI</span>
+        </button>
+    </div>
+
     <!-- Main JavaScript Logic -->
     <script>
+        const DEFAULT_PUBLIC_FIREBASE_URL = "";
+        const OFFICIAL_WA_DISPLAY = "0895411366802";
+        const OFFICIAL_WA_INTL = "62895411366802";
+
         const defaultPhotos = {
-            'curugsewu': { 
-                url: 'images/curug-sewu.jpg', 
-                rootFile: 'curug-sewu.jpg',
-                fallbackUrl: ''
-            },
-            'pantaicahaya': { 
-                url: 'images/cahaya.jpg', 
-                rootFile: 'cahaya.jpg',
-                fallbackUrl: ''
-            },
-            'kebuntehmedini': { 
-                url: 'images/kebun-teh-medini.jpg', 
-                rootFile: 'kebun-teh-medini.jpg',
-                fallbackUrl: ''
-            },
-            'hutanpinus': { 
-                url: 'images/nglimut.jpg', 
-                rootFile: 'nglimut.jpg',
-                fallbackUrl: ''
-            },
-            'pantaingebum': { 
-                url: 'images/ngebum.jpg', 
-                rootFile: 'ngebum.jpg',
-                fallbackUrl: ''
-            },
-            'pulautiban': { 
-                url: 'images/pulau-tiban.jpg', 
-                rootFile: 'pulau-tiban.jpg',
-                fallbackUrl: ''
-            },
-            'curuglawesicepit': { 
-                url: 'images/curug-lawe.jpg', 
-                rootFile: 'curug-lawe.jpg',
-                fallbackUrl: ''
-            }
+            'curugsewu': { url: 'images/curug-sewu.jpg', rootFile: 'curug-sewu.jpg', fallbackUrl: '' },
+            'pantaicahaya': { url: 'images/cahaya.jpg', rootFile: 'cahaya.jpg', fallbackUrl: '' },
+            'kebuntehmedini': { url: 'images/kebun-teh-medini.jpg', rootFile: 'kebun-teh-medini.jpg', fallbackUrl: '' },
+            'hutanpinus': { url: 'images/nglimut.jpg', rootFile: 'nglimut.jpg', fallbackUrl: '' },
+            'pantaingebum': { url: 'images/ngebum.jpg', rootFile: 'ngebum.jpg', fallbackUrl: '' },
+            'pulautiban': { url: 'images/pulau-tiban.jpg', rootFile: 'pulau-tiban.jpg', fallbackUrl: '' },
+            'curuglawesicepit': { url: 'images/curug-lawe.jpg', rootFile: 'curug-lawe.jpg', fallbackUrl: '' }
         };
 
         const defaultDestinationsData = {
@@ -823,6 +1064,7 @@
                 ticketLabel: 'Tiket Masuk Mulai',
                 category: 'Alam & Air Terjun',
                 location: 'Desa Curugsewu, Kecamatan Patean, Kabupaten Kendal',
+                mapQuery: 'Air Terjun Curug Sewu Patean Kendal',
                 hours: '08:00 - 17:00 WIB (Setiap Hari)',
                 ticket: 'Rp 12.000 (Weekday) / Rp 15.000 (Weekend)',
                 parking: 'Motor Rp 3.000 | Mobil Rp 5.000',
@@ -831,6 +1073,7 @@
                 tips: 'Kenakan pakaian hangat karena udara pegunungan cukup dingin dan siapkan kamera untuk berfoto di spot air terjun utama.',
                 priceWeekday: 12000,
                 priceWeekend: 15000,
+                dailyQuota: 150,
                 customPhoto: 'images/curug-sewu.jpg'
             },
             'pantaicahaya': {
@@ -843,6 +1086,7 @@
                 ticketLabel: 'Tiket Masuk Mulai',
                 category: 'Pantai & Edutainment',
                 location: 'Dusun Klampok, Desa Sendangsikucing, Kecamatan Rowosari, Kabupaten Kendal',
+                mapQuery: 'The Sea Pantai Cahaya Rowosari Kendal',
                 hours: '08:00 - 17:00 WIB (Setiap Hari)',
                 ticket: 'Rp 20.000 (Weekday) / Rp 25.000 (Weekend)',
                 parking: 'Motor Rp 5.000 | Mobil Rp 10.000',
@@ -851,6 +1095,7 @@
                 tips: 'Disarankan membawa topi, kacamata hitam, sunblock, serta handuk dan pakaian ganti jika ingin bermain air atau di tepi pantai.',
                 priceWeekday: 20000,
                 priceWeekend: 25000,
+                dailyQuota: 200,
                 customPhoto: 'images/cahaya.jpg'
             },
             'kebuntehmedini': {
@@ -863,6 +1108,7 @@
                 ticketLabel: 'Tiket Masuk Mulai',
                 category: 'Agrowisata Pegunungan',
                 location: 'Desa Ngesrepbalong, Kecamatan Limbangan, Kabupaten Kendal (±50 menit dari Semarang)',
+                mapQuery: 'Kebun Teh Medini Limbangan Kendal',
                 hours: '07:00 - 17:00 WIB (Setiap Hari)',
                 ticket: 'Rp 10.000 (Weekday) / Rp 12.000 (Weekend)',
                 parking: 'Motor Rp 3.000 | Mobil Rp 5.000',
@@ -871,6 +1117,7 @@
                 tips: 'Datanglah pada pagi hari untuk melihat langsung aktivitas para pemetik daun teh, kenakan jaket tebal karena berkabut, dan pastikan kendaraan dalam kondisi prima.',
                 priceWeekday: 10000,
                 priceWeekend: 12000,
+                dailyQuota: 120,
                 customPhoto: 'images/kebun-teh-medini.jpg'
             },
             'hutanpinus': {
@@ -883,6 +1130,7 @@
                 ticketLabel: 'Tiket Masuk Mulai',
                 category: 'Ekowisata Hutan',
                 location: 'Desa Gonoharjo, Kecamatan Limbangan, Kabupaten Kendal',
+                mapQuery: 'Hutan Pinus Nglimut Gonoharjo Kendal',
                 hours: '08:00 - 17:00 WIB (Setiap Hari)',
                 ticket: 'Rp 5.000 (Weekday) / Rp 7.000 (Weekend)',
                 parking: 'Motor Rp 3.000 | Mobil Rp 5.000',
@@ -891,6 +1139,7 @@
                 tips: 'Jaga kebersihan lingkungan hutan pinus dan patuhi peraturan jika mendirikan tenda kemah.',
                 priceWeekday: 5000,
                 priceWeekend: 7000,
+                dailyQuota: 100,
                 customPhoto: 'images/nglimut.jpg'
             },
             'pantaingebum': {
@@ -903,6 +1152,7 @@
                 ticketLabel: 'Tiket Masuk Mulai',
                 category: 'Pantai & Kuliner Pesisir',
                 location: 'Desa Mororejo, Kecamatan Kaliwungu, Kabupaten Kendal (30-40 menit dari Kota Kendal)',
+                mapQuery: 'Pantai Ngebum Mororejo Kaliwungu Kendal',
                 hours: '06:00 - 18:00 WIB (Setiap Hari)',
                 ticket: 'Rp 5.000 (Weekday) / Rp 10.000 (Weekend)',
                 parking: 'Motor Rp 3.000 | Mobil Rp 5.000',
@@ -911,6 +1161,7 @@
                 tips: 'Datanglah pada pagi hari untuk menyaksikan matahari terbit (sunrise) atau sore hari saat langit keemasan tanpa panas terik, serta awasi anak-anak saat bermain air di bibir pantai.',
                 priceWeekday: 5000,
                 priceWeekend: 10000,
+                dailyQuota: 180,
                 customPhoto: 'images/ngebum.jpg'
             },
             'pulautiban': {
@@ -923,6 +1174,7 @@
                 ticketLabel: 'Tiket & Perahu PP',
                 category: 'Wisata Pulau Pesisir',
                 location: 'Desa Kartikajaya, Kecamatan Patebon, Kabupaten Kendal',
+                mapQuery: 'Pulau Tiban Kartikajaya Patebon Kendal',
                 hours: '06:00 - 17:00 WIB (Setiap Hari)',
                 ticket: 'Rp 5.000 (Masuk) / Rp 13.000 (Perahu PP)',
                 parking: 'Motor Rp 3.000 | Mobil Rp 5.000',
@@ -931,6 +1183,7 @@
                 tips: 'Perhatikan jadwal pasang surut air laut serta cuaca sebelum menyeberang perahu agar dapat menikmati hamparan pasir pulau dengan nyaman.',
                 priceWeekday: 13000,
                 priceWeekend: 15000,
+                dailyQuota: 60,
                 customPhoto: 'images/pulau-tiban.jpg'
             },
             'curuglawesicepit': {
@@ -943,6 +1196,7 @@
                 ticketLabel: 'Tiket Masuk Mulai',
                 category: 'Alam & Petualangan',
                 location: 'Desa Ngesrepbalong, Kecamatan Limbangan, Kabupaten Kendal',
+                mapQuery: 'Curug Lawe Sicepit Limbangan Kendal',
                 hours: '08:00 - 16:00 WIB (Setiap Hari)',
                 ticket: 'Rp 5.000 (Weekday) / Rp 7.000 (Weekend)',
                 parking: 'Motor Rp 3.000 | Mobil Rp 5.000',
@@ -951,43 +1205,653 @@
                 tips: 'Gunakan alas kaki anti selip karena jalur menuju air terjun cukup licin setelah hujan.',
                 priceWeekday: 5000,
                 priceWeekend: 7000,
+                dailyQuota: 80,
                 customPhoto: 'images/curug-lawe.jpg'
             }
         };
 
         let destinationsData = {};
-        let ticketBookings = [];
+        let globalBookings = [];
+        let myLocalBookingCodes = [];
         let currentActiveFilter = 'semua';
         let isAdminLoggedIn = false;
+        
+        let appliedPromoType = '';
+        let appliedPromoValue = 0;
+        let appliedPromoName = '';
+        let currentGeneratedTicket = null;
 
-        // Mengambil konfigurasi GitHub dari localStorage
-        function getGitHubConfig() {
+        function getCloudConfig() {
             try {
+                let fbUrl = localStorage.getItem('kendal_fb_db_url') || DEFAULT_PUBLIC_FIREBASE_URL;
+                if (fbUrl && fbUrl.endsWith('/')) fbUrl = fbUrl.slice(0, -1);
                 return {
+                    fbUrl: fbUrl,
                     owner: localStorage.getItem('kendal_gh_owner') || 'Adriyan-hub',
                     repo: localStorage.getItem('kendal_gh_repo') || 'wisata',
                     token: localStorage.getItem('kendal_gh_token') || ''
                 };
             } catch (e) {
-                return { owner: 'Adriyan-hub', repo: 'wisata', token: '' };
+                return { fbUrl: DEFAULT_PUBLIC_FIREBASE_URL, owner: 'Adriyan-hub', repo: 'wisata', token: '' };
             }
         }
 
-        function saveGitHubConfig() {
-            const owner = document.getElementById('gh-owner').value.trim() || 'Adriyan-hub';
-            const repo = document.getElementById('gh-repo').value.trim() || 'wisata';
-            const token = document.getElementById('gh-token').value.trim();
+        function saveCloudAndGitHubConfig() {
+            let fbUrl = (document.getElementById('fb-db-url')?.value || '').trim();
+            if (fbUrl && fbUrl.endsWith('/')) fbUrl = fbUrl.slice(0, -1);
+            const owner = (document.getElementById('gh-owner')?.value || '').trim() || 'Adriyan-hub';
+            const repo = (document.getElementById('gh-repo')?.value || '').trim() || 'wisata';
+            const token = (document.getElementById('gh-token')?.value || '').trim();
             try {
+                localStorage.setItem('kendal_fb_db_url', fbUrl);
                 localStorage.setItem('kendal_gh_owner', owner);
                 localStorage.setItem('kendal_gh_repo', repo);
                 localStorage.setItem('kendal_gh_token', token);
             } catch (e) {}
-            showToast('Koneksi GitHub tersimpan! Upload foto kini otomatis publik.');
+            updateCloudStatusBadge();
+            showToast('✅ Pengaturan Cloud & GitHub Publik tersimpan!');
         }
 
-        // Fungsi mengunggah file gambar (base64) ke GitHub folder images/
+        function updateCloudStatusBadge() {
+            const cfg = getCloudConfig();
+            const ind = document.getElementById('cloud-sync-indicator');
+            if (!ind) return;
+            if (cfg.fbUrl) {
+                ind.textContent = '⚡ Kuota Publik Live Cloud';
+                ind.className = 'px-2.5 py-0.5 rounded-full bg-emerald-950 border border-emerald-600/50 text-[11px] font-semibold text-emerald-300';
+            } else if (cfg.token) {
+                ind.textContent = '☁️ Kuota Publik GitHub Sync';
+                ind.className = 'px-2.5 py-0.5 rounded-full bg-teal-950 border border-teal-600/50 text-[11px] font-semibold text-teal-300';
+            } else {
+                ind.textContent = '🌐 Kuota Publik Portal';
+                ind.className = 'px-2.5 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-[11px] font-semibold text-teal-300';
+            }
+        }
+
+        async function syncGlobalBookingsFromCloud(showNotif = false) {
+            const cfg = getCloudConfig();
+            let remoteBookings = null;
+
+            if (cfg.fbUrl) {
+                try {
+                    const res = await fetch(`${cfg.fbUrl}/bookings.json?t=${Date.now()}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data && typeof data === 'object') {
+                            remoteBookings = Array.isArray(data) ? data.filter(Boolean) : Object.values(data);
+                        } else if (data === null) {
+                            remoteBookings = [];
+                        }
+                    }
+                } catch (e) {}
+            }
+
+            if (remoteBookings === null) {
+                try {
+                    const res = await fetch(`wisata-bookings.json?t=${Date.now()}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (Array.isArray(data)) {
+                            remoteBookings = data;
+                        }
+                    }
+                } catch (e) {}
+            }
+
+            let localBookings = [];
+            try {
+                localBookings = JSON.parse(localStorage.getItem('kendal_wisata_bookings_v1') || '[]');
+                myLocalBookingCodes = JSON.parse(localStorage.getItem('kendal_my_booking_codes_v1') || '[]');
+            } catch (e) {}
+
+            if (remoteBookings !== null) {
+                const mapByCode = new Map();
+                remoteBookings.forEach(b => { if (b && b.code) mapByCode.set(b.code, b); });
+                localBookings.forEach(b => { if (b && b.code && !mapByCode.has(b.code)) mapByCode.set(b.code, b); });
+                globalBookings = Array.from(mapByCode.values());
+            } else {
+                globalBookings = localBookings;
+            }
+
+            globalBookings.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            saveLocalBookingsCache();
+            renderDestinationsGrid();
+            updateBookingSummary();
+            if (showNotif) showToast('🔄 Data kuota & tiket publik diperbarui!');
+        }
+
+        async function pushNewBookingToPublicCloud(bookingRecord) {
+            const cfg = getCloudConfig();
+
+            if (cfg.fbUrl) {
+                try {
+                    await fetch(`${cfg.fbUrl}/bookings/${bookingRecord.code}.json`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(bookingRecord)
+                    });
+                } catch (e) {}
+            }
+
+            if (cfg.token) {
+                try {
+                    const jsonStr = JSON.stringify(globalBookings, null, 2);
+                    const base64Json = btoa(unescape(encodeURIComponent(jsonStr)));
+                    await uploadFileToGitHub('wisata-bookings.json', base64Json, `Booking publik ${bookingRecord.code}`);
+                } catch (e) {}
+            }
+        }
+
+        function saveLocalBookingsCache() {
+            try {
+                localStorage.setItem('kendal_wisata_bookings_v1', JSON.stringify(globalBookings));
+                localStorage.setItem('kendal_my_booking_codes_v1', JSON.stringify(myLocalBookingCodes));
+            } catch (e) {}
+            updateTicketBadgeCount();
+        }
+
+        function updateTicketBadgeCount() {
+            const badge = document.getElementById('ticket-badge-count');
+            if (badge) {
+                const myCount = globalBookings.filter(b => myLocalBookingCodes.includes(b.code)).length;
+                badge.textContent = myCount > 0 ? myCount : globalBookings.length;
+            }
+        }
+
+        function getRemainingQuota(destId, dateStr) {
+            const d = destinationsData[destId];
+            if (!d) return { total: 100, booked: 0, remaining: 100 };
+            const maxQuota = typeof d.dailyQuota === 'number' ? d.dailyQuota : 100;
+            const targetDate = dateStr || document.getElementById('book-tanggal')?.value || '';
+
+            let bookedCount = 0;
+            globalBookings.forEach(b => {
+                if (b.destId === destId && (!targetDate || b.tanggal === targetDate)) {
+                    bookedCount += (typeof b.totalVisitors === 'number' ? b.totalVisitors : 1);
+                }
+            });
+
+            const remaining = Math.max(0, maxQuota - bookedCount);
+            return { total: maxQuota, booked: bookedCount, remaining: remaining };
+        }
+
+        function refreshGlobalDataAndSummary() {
+            renderDestinationsGrid();
+            updateBookingSummary();
+        }
+
+        function switchLoketTab(tabId) {
+            ['pesan', 'cek', 'promo'].forEach(t => {
+                const content = document.getElementById(`loket-tab-content-${t}`);
+                const btn = document.getElementById(`loket-tab-btn-${t}`);
+                if (content) content.classList.add('hidden');
+                if (btn) {
+                    btn.classList.remove('bg-teal-600', 'text-white', 'shadow-sm');
+                    btn.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+                }
+            });
+            const activeContent = document.getElementById(`loket-tab-content-${tabId}`);
+            const activeBtn = document.getElementById(`loket-tab-btn-${tabId}`);
+            if (activeContent) activeContent.classList.remove('hidden');
+            if (activeBtn) {
+                activeBtn.classList.add('bg-teal-600', 'text-white', 'shadow-sm');
+                activeBtn.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+            }
+        }
+
+        async function performTicketValidation() {
+            const query = (document.getElementById('check-input-val')?.value || '').trim().toUpperCase();
+            const resBox = document.getElementById('check-result-box');
+            if (!resBox) return;
+
+            resBox.classList.remove('hidden');
+            resBox.innerHTML = '<p class="text-xs text-slate-500 text-center py-3 animate-pulse">⏳ Memeriksa database tiket publik...</p>';
+
+            await syncGlobalBookingsFromCloud(false);
+            resBox.innerHTML = '';
+
+            if (!query) {
+                resBox.innerHTML = '<p class="text-xs text-rose-600 font-semibold text-center py-4">Silakan masukkan Kode Booking atau Nomor HP terlebih dahulu.</p>';
+                return;
+            }
+
+            const matches = globalBookings.filter(t => 
+                (t.code && t.code.toUpperCase().includes(query)) || 
+                (t.hp && t.hp.includes(query))
+            );
+
+            if (matches.length === 0) {
+                resBox.innerHTML = `
+                    <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-center space-y-1">
+                        <span class="text-rose-700 font-bold text-sm block">❌ Tiket Tidak Ditemukan</span>
+                        <p class="text-xs text-rose-600">Tidak ada pemesanan publik yang cocok dengan "<strong>${query}</strong>".</p>
+                    </div>
+                `;
+                return;
+            }
+
+            matches.forEach(t => {
+                const idx = globalBookings.indexOf(t);
+                const card = document.createElement('div');
+                card.className = 'p-4 rounded-2xl bg-white border border-emerald-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3';
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[11px]">✓ TERVERIFIKASI PUBLIK</span>
+                            <span class="font-mono font-bold text-xs text-slate-700">${t.code}</span>
+                        </div>
+                        <h4 class="font-display font-bold text-slate-900 text-base mt-1">${t.destName}</h4>
+                        <p class="text-xs text-slate-600">Pemesan: <strong>${t.nama}</strong> • Tgl: ${t.tanggal} (${t.qtyText})</p>
+                    </div>
+                    <button type="button" onclick="showEticketModal(globalBookings[${idx}])" class="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shrink-0">Buka E-Tiket QR</button>
+                `;
+                resBox.appendChild(card);
+            });
+        }
+
+        function buildWhatsAppTicketMessage(t) {
+            return `*KONFIRMASI E-TIKET WISATA KENDAL*%0A` +
+                   `----------------------------%0A` +
+                   `Kode Booking: *${t.code}*%0A` +
+                   `Destinasi: *${t.destName}*%0A` +
+                   `Nama Pemesan: ${t.nama}%0A` +
+                   `No. HP Pemesan: ${t.hp}%0A` +
+                   `Tanggal Kunjungan: ${t.tanggal}%0A` +
+                   `Sesi Kedatangan: ${t.sesi}%0A` +
+                   `Tiket: ${t.qtyText}%0A` +
+                   `Add-on: ${t.addonsText}%0A` +
+                   `Metode Bayar: ${t.metode}%0A` +
+                   `Total Bayar: *${formatRupiah(t.total)}*%0A` +
+                   `----------------------------%0A` +
+                   `_Mohon konfirmasi E-Tiket ini. Terima kasih!_`;
+        }
+
+        // Kirim langsung ke Nomor WhatsApp Resmi Loket Wisata Kendal (0895411366802)
+        function sendTicketToOfficialWhatsApp() {
+            if (!currentGeneratedTicket) return;
+            const text = buildWhatsAppTicketMessage(currentGeneratedTicket);
+            const waUrl = `https://wa.me/${OFFICIAL_WA_INTL}?text=${text}`;
+            window.open(waUrl, '_blank');
+        }
+
+        // Kirim salinan E-Tiket ke nomor WhatsApp pemesan sendiri
+        function sendTicketToWhatsApp() {
+            if (!currentGeneratedTicket) return;
+            const t = currentGeneratedTicket;
+            const text = buildWhatsAppTicketMessage(t);
+            let cleanPhone = (t.hp || '').replace(/[^0-9]/g, '');
+            if (cleanPhone.startsWith('0')) {
+                cleanPhone = '62' + cleanPhone.slice(1);
+            }
+            const waUrl = cleanPhone ? `https://wa.me/${cleanPhone}?text=${text}` : `https://wa.me/${OFFICIAL_WA_INTL}?text=${text}`;
+            window.open(waUrl, '_blank');
+        }
+
+        function adjustQty(type, delta) {
+            const destId = document.getElementById('book-destinasi')?.value;
+            const dateStr = document.getElementById('book-tanggal')?.value;
+            const quotaInfo = getRemainingQuota(destId, dateStr);
+
+            const dewasaEl = document.getElementById('book-qty-dewasa');
+            const anakEl = document.getElementById('book-qty-anak');
+            if (!dewasaEl || !anakEl) return;
+
+            let curDewasa = parseInt(dewasaEl.value) || 0;
+            let curAnak = parseInt(anakEl.value) || 0;
+
+            if (delta > 0 && (curDewasa + curAnak) >= quotaInfo.remaining) {
+                showToast(`⚠️ Maksimal sisa kuota publik tersedia hanya ${quotaInfo.remaining} tiket!`);
+                return;
+            }
+
+            if (type === 'dewasa') {
+                dewasaEl.value = Math.max(0, curDewasa + delta);
+            } else {
+                anakEl.value = Math.max(0, curAnak + delta);
+            }
+            updateBookingSummary();
+        }
+
+        function applyPromoCode() {
+            const input = document.getElementById('book-promo-input').value.trim().toUpperCase();
+            const fb = document.getElementById('promo-feedback');
+            fb.classList.remove('hidden');
+
+            if (input === 'KENDAL10') {
+                appliedPromoType = 'percent';
+                appliedPromoValue = 10;
+                appliedPromoName = 'KENDAL10 (10%)';
+                fb.textContent = '🎉 Kupon KENDAL10 berhasil! Diskon 10%.';
+                fb.className = 'text-xs text-emerald-600 font-semibold mt-1';
+            } else if (input === 'LIBURAN10K') {
+                appliedPromoType = 'fixed';
+                appliedPromoValue = 10000;
+                appliedPromoName = 'LIBURAN10K (Rp 10rb)';
+                fb.textContent = '🌟 Kupon LIBURAN10K berhasil! Potongan Rp 10.000.';
+                fb.className = 'text-xs text-emerald-600 font-semibold mt-1';
+            } else {
+                appliedPromoType = '';
+                appliedPromoValue = 0;
+                appliedPromoName = '';
+                fb.textContent = '❌ Kode promo tidak valid.';
+                fb.className = 'text-xs text-rose-600 font-semibold mt-1';
+            }
+            updateBookingSummary();
+        }
+
+        function updateBookingSummary() {
+            const destId = document.getElementById('book-destinasi')?.value;
+            const dateStr = document.getElementById('book-tanggal')?.value;
+            
+            const d = destinationsData[destId];
+            if (!d) return;
+
+            const quotaInfo = getRemainingQuota(destId, dateStr);
+            const quotaBadge = document.getElementById('kuota-harian-badge');
+            const quotaDetailText = document.getElementById('kuota-text-detail');
+            const quotaBar = document.getElementById('kuota-progress-bar');
+            const submitBtn = document.getElementById('book-submit-btn');
+
+            const pctRemaining = quotaInfo.total > 0 ? Math.round((quotaInfo.remaining / quotaInfo.total) * 100) : 0;
+            if (quotaBar) {
+                quotaBar.style.width = `${pctRemaining}%`;
+                if (quotaInfo.remaining === 0) {
+                    quotaBar.className = 'h-full bg-rose-500 transition-all duration-300';
+                } else if (pctRemaining <= 25) {
+                    quotaBar.className = 'h-full bg-amber-500 transition-all duration-300';
+                } else {
+                    quotaBar.className = 'h-full bg-emerald-500 transition-all duration-300';
+                }
+            }
+
+            if (quotaDetailText) {
+                quotaDetailText.textContent = quotaInfo.remaining === 0 
+                    ? `HABIS (0 dari ${quotaInfo.total} tiket)` 
+                    : `Tersisa ${quotaInfo.remaining} dari ${quotaInfo.total} tiket`;
+            }
+
+            if (quotaBadge) {
+                if (quotaInfo.remaining === 0) {
+                    quotaBadge.textContent = '🔴 TIKET HABIS (SOLD OUT)';
+                    quotaBadge.className = 'px-3 py-1 rounded-xl bg-rose-100 text-rose-800 text-xs font-bold';
+                } else if (quotaInfo.remaining <= 15) {
+                    quotaBadge.textContent = `🟠 Hampir Habis: Sisa ${quotaInfo.remaining} Tiket`;
+                    quotaBadge.className = 'px-3 py-1 rounded-xl bg-amber-100 text-amber-800 text-xs font-bold';
+                } else {
+                    quotaBadge.textContent = `🟢 Sisa Kuota: ${quotaInfo.remaining} Tiket`;
+                    quotaBadge.className = 'px-3 py-1 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-bold';
+                }
+            }
+
+            if (submitBtn) {
+                if (quotaInfo.remaining === 0) {
+                    submitBtn.disabled = true;
+                    submitBtn.className = 'w-full py-4 rounded-2xl bg-slate-300 text-slate-500 font-display font-bold text-base cursor-not-allowed flex items-center justify-center gap-2';
+                    submitBtn.innerHTML = '<span>🚫 Kuota Tiket Tanggal Ini Sudah Habis</span>';
+                } else {
+                    submitBtn.disabled = false;
+                    submitBtn.className = 'w-full py-4 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-display font-bold text-base shadow-lg shadow-teal-600/25 transition flex items-center justify-center gap-2';
+                    submitBtn.innerHTML = '<span>✅ Konfirmasi & Terbitkan E-Tiket QR</span>';
+                }
+            }
+
+            const qtyDewasa = Math.max(0, parseInt(document.getElementById('book-qty-dewasa')?.value) || 0);
+            const qtyAnak = Math.max(0, parseInt(document.getElementById('book-qty-anak')?.value) || 0);
+            const totalVisitors = qtyDewasa + qtyAnak;
+
+            const parkingFee = parseInt(document.getElementById('book-parkir')?.value) || 0;
+            const useGazebo = document.getElementById('addon-gazebo')?.checked || false;
+            const useGuide = document.getElementById('addon-guide')?.checked || false;
+            const useDok = document.getElementById('addon-dok')?.checked || false;
+            const useAsuransi = document.getElementById('addon-asuransi')?.checked || false;
+
+            const weekend = isWeekendDate(dateStr);
+            const basePrice = weekend ? (d.priceWeekend || d.priceWeekday || 12000) : (d.priceWeekday || 10000);
+            
+            const priceDewasa = basePrice;
+            const priceAnak = Math.round(basePrice * 0.5);
+
+            const subtotalDewasa = qtyDewasa * priceDewasa;
+            const subtotalAnak = qtyAnak * priceAnak;
+            const totalTiket = subtotalDewasa + subtotalAnak;
+
+            let addonsFee = 0;
+            if (useGazebo) addonsFee += 25000;
+            if (useGuide) addonsFee += 40000;
+            if (useDok) addonsFee += 30000;
+            if (useAsuransi && totalVisitors > 0) addonsFee += (totalVisitors * 5000);
+
+            let grossTotal = totalTiket + addonsFee + parkingFee;
+
+            let rombonganDiscount = 0;
+            const isRombongan = totalVisitors >= 10;
+            if (isRombongan) {
+                rombonganDiscount = Math.round(totalTiket * 0.10);
+            }
+
+            let promoDiscount = 0;
+            if (appliedPromoType === 'percent') {
+                promoDiscount = Math.round((grossTotal * appliedPromoValue) / 100);
+            } else if (appliedPromoType === 'fixed') {
+                promoDiscount = appliedPromoValue;
+            }
+
+            let finalTotal = Math.max(0, grossTotal - rombonganDiscount - promoDiscount);
+
+            document.getElementById('sum-dest-name').textContent = d.name;
+            document.getElementById('label-harga-dewasa').textContent = `Rp ${priceDewasa.toLocaleString('id-ID')} /org`;
+            document.getElementById('label-harga-anak').textContent = `Rp ${priceAnak.toLocaleString('id-ID')} (Diskon 50%)`;
+
+            const badge = document.getElementById('sum-day-badge');
+            if (weekend) {
+                badge.textContent = 'Weekend / Libur';
+                badge.className = 'px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold text-xs';
+            } else {
+                badge.textContent = 'Weekday';
+                badge.className = 'px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 font-bold text-xs';
+            }
+
+            const sesiVal = document.getElementById('book-sesi')?.value || 'Sesi Pagi';
+            document.getElementById('sum-tanggal').textContent = (dateStr || '-') + ' (' + sesiVal.split(' ')[0] + ')';
+            
+            document.getElementById('sum-qty-dewasa').textContent = qtyDewasa;
+            document.getElementById('sum-sub-dewasa').textContent = formatRupiah(subtotalDewasa);
+            document.getElementById('sum-qty-anak').textContent = qtyAnak;
+            document.getElementById('sum-sub-anak').textContent = formatRupiah(subtotalAnak);
+            document.getElementById('sum-sub-addon').textContent = formatRupiah(addonsFee);
+            document.getElementById('sum-sub-parkir').textContent = formatRupiah(parkingFee);
+
+            const rombRow = document.getElementById('sum-rombongan-row');
+            if (isRombongan) {
+                rombRow.classList.remove('hidden');
+                document.getElementById('sum-rombongan-val').textContent = `- ${formatRupiah(rombonganDiscount)}`;
+            } else {
+                rombRow.classList.add('hidden');
+            }
+
+            const promoRow = document.getElementById('sum-promo-row');
+            if (promoDiscount > 0) {
+                promoRow.classList.remove('hidden');
+                document.getElementById('sum-promo-val').textContent = `- ${formatRupiah(promoDiscount)} (${appliedPromoName})`;
+            } else {
+                promoRow.classList.add('hidden');
+            }
+
+            document.getElementById('sum-total-bayar').textContent = formatRupiah(finalTotal);
+        }
+
+        async function submitTicketBooking(event) {
+            event.preventDefault();
+            const destId = document.getElementById('book-destinasi').value;
+            const d = destinationsData[destId];
+            if (!d) return;
+
+            const nama = document.getElementById('book-nama').value.trim();
+            const hp = document.getElementById('book-hp').value.trim();
+            const tanggal = document.getElementById('book-tanggal').value;
+            const sesi = document.getElementById('book-sesi').value;
+            
+            const qtyDewasa = Math.max(0, parseInt(document.getElementById('book-qty-dewasa').value) || 0);
+            const qtyAnak = Math.max(0, parseInt(document.getElementById('book-qty-anak').value) || 0);
+            const totalVisitors = qtyDewasa + qtyAnak;
+
+            if (totalVisitors <= 0) {
+                showToast('⚠️ Minimal pilih 1 pengunjung.');
+                return;
+            }
+
+            await syncGlobalBookingsFromCloud(false);
+
+            const quotaInfo = getRemainingQuota(destId, tanggal);
+            if (quotaInfo.remaining <= 0) {
+                showToast('🚫 Maaf, kuota tiket untuk tanggal ini baru saja habis!');
+                return;
+            }
+            if (totalVisitors > quotaInfo.remaining) {
+                showToast(`⚠️ Sisa kuota publik hanya ${quotaInfo.remaining} tiket. Kurangi jumlah pengunjung.`);
+                return;
+            }
+
+            const parkir = parseInt(document.getElementById('book-parkir').value) || 0;
+            const useGazebo = document.getElementById('addon-gazebo').checked;
+            const useGuide = document.getElementById('addon-guide').checked;
+            const useDok = document.getElementById('addon-dok').checked;
+            const useAsuransi = document.getElementById('addon-asuransi').checked;
+            const metode = document.getElementById('book-metode').value;
+
+            const weekend = isWeekendDate(tanggal);
+            const basePrice = weekend ? (d.priceWeekend || d.priceWeekday || 12000) : (d.priceWeekday || 10000);
+            
+            const subtotalDewasa = qtyDewasa * basePrice;
+            const subtotalAnak = qtyAnak * Math.round(basePrice * 0.5);
+            const totalTiket = subtotalDewasa + subtotalAnak;
+
+            let addonsFee = 0;
+            let addonsText = [];
+            if (useGazebo) { addonsFee += 25000; addonsText.push('Sewa Gazebo'); }
+            if (useGuide) { addonsFee += 40000; addonsText.push('Tour Guide'); }
+            if (useDok) { addonsFee += 30000; addonsText.push('Dokumentasi'); }
+            if (useAsuransi && totalVisitors > 0) { addonsFee += (totalVisitors * 5000); addonsText.push('Asuransi'); }
+
+            let grossTotal = totalTiket + addonsFee + parkir;
+            let rombonganDiscount = totalVisitors >= 10 ? Math.round(totalTiket * 0.10) : 0;
+            let promoDiscount = 0;
+            if (appliedPromoType === 'percent') promoDiscount = Math.round((grossTotal * appliedPromoValue) / 100);
+            else if (appliedPromoType === 'fixed') promoDiscount = appliedPromoValue;
+
+            let finalTotal = Math.max(0, grossTotal - rombonganDiscount - promoDiscount);
+            const bookingCode = 'KDL-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
+
+            let qtySummaryText = [];
+            if (qtyDewasa > 0) qtySummaryText.push(`${qtyDewasa} Dewasa`);
+            if (qtyAnak > 0) qtySummaryText.push(`${qtyAnak} Anak`);
+
+            const bookingRecord = {
+                code: bookingCode,
+                destId: destId,
+                destName: d.name,
+                nama: nama,
+                hp: hp,
+                tanggal: tanggal,
+                sesi: sesi,
+                totalVisitors: totalVisitors,
+                qtyText: qtySummaryText.join(', '),
+                addonsText: addonsText.join(', ') || 'Tanpa Add-on',
+                metode: metode,
+                total: finalTotal,
+                timestamp: Date.now(),
+                createdAt: new Date().toLocaleString('id-ID')
+            };
+
+            globalBookings.unshift(bookingRecord);
+            myLocalBookingCodes.unshift(bookingCode);
+            saveLocalBookingsCache();
+
+            renderDestinationsGrid();
+            updateBookingSummary();
+            currentGeneratedTicket = bookingRecord;
+            showEticketModal(bookingRecord);
+
+            await pushNewBookingToPublicCloud(bookingRecord);
+            showToast('🎉 E-Tiket terbit! Kirim konfirmasi ke WA 0895411366802.');
+        }
+
+        function showEticketModal(ticket) {
+            currentGeneratedTicket = ticket;
+            document.getElementById('eticket-dest').textContent = ticket.destName;
+            document.getElementById('eticket-code').textContent = ticket.code;
+            document.getElementById('eticket-name').textContent = ticket.nama;
+            document.getElementById('eticket-hp').textContent = ticket.hp;
+            document.getElementById('eticket-date').textContent = ticket.tanggal;
+            document.getElementById('eticket-sesi').textContent = ticket.sesi;
+            document.getElementById('eticket-qty').textContent = ticket.qtyText;
+            
+            const addonRow = document.getElementById('eticket-addons-row');
+            if (ticket.addonsText && ticket.addonsText !== 'Tanpa Add-on') {
+                addonRow.classList.remove('hidden');
+                document.getElementById('eticket-addons-text').textContent = ticket.addonsText;
+            } else {
+                addonRow.classList.add('hidden');
+            }
+
+            document.getElementById('eticket-method').textContent = ticket.metode;
+            document.getElementById('eticket-total').textContent = formatRupiah(ticket.total);
+            document.getElementById('qr-code-text').textContent = ticket.code;
+
+            drawUniqueQRCode(ticket.code);
+
+            const modal = document.getElementById('eticket-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function drawUniqueQRCode(codeStr) {
+            const canvas = document.getElementById('eticket-qr-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const size = canvas.width;
+            const modules = 21;
+            const cellSize = size / modules;
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, size, size);
+            ctx.fillStyle = '#0f172a';
+
+            function drawFinder(r, c) {
+                ctx.fillRect(c * cellSize, r * cellSize, 7 * cellSize, 7 * cellSize);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect((c + 1) * cellSize, (r + 1) * cellSize, 5 * cellSize, 5 * cellSize);
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect((c + 2) * cellSize, (r + 2) * cellSize, 3 * cellSize, 3 * cellSize);
+            }
+
+            drawFinder(0, 0);
+            drawFinder(0, modules - 7);
+            drawFinder(modules - 7, 0);
+
+            let seed = 0;
+            for (let i = 0; i < codeStr.length; i++) {
+                seed = ((seed << 5) - seed) + codeStr.charCodeAt(i);
+                seed |= 0;
+            }
+
+            for (let r = 0; r < modules; r++) {
+                for (let c = 0; c < modules; c++) {
+                    const inTopLeft = r < 8 && c < 8;
+                    const inTopRight = r < 8 && c >= modules - 8;
+                    const inBottomLeft = r >= modules - 8 && c < 8;
+                    if (inTopLeft || inTopRight || inBottomLeft) continue;
+
+                    const hash = Math.abs(Math.sin(seed + r * 31 + c * 17) * 10000);
+                    if (Math.floor(hash) % 2 === 0) {
+                        ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
+                    }
+                }
+            }
+        }
+
         async function uploadFileToGitHub(filePath, base64Content, commitMsg) {
-            const cfg = getGitHubConfig();
+            const cfg = getCloudConfig();
             if (!cfg.token) return null;
 
             const apiUrl = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${filePath}`;
@@ -1028,26 +1892,42 @@
             return `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/main/${filePath}?t=${Date.now()}`;
         }
 
-        // Menyimpan seluruh data destinasi ke wisata-data.json di GitHub agar dilihat semua pengunjung publik
-        async function publishDataJsonToGitHub() {
-            const cfg = getGitHubConfig();
-            if (!cfg.token) {
-                showToast('⚠️ Isi GitHub Token di tab Publish Publik agar perubahan tampil untuk semua orang.');
-                return false;
+        async function publishAllPublicData() {
+            const cfg = getCloudConfig();
+            let syncedAny = false;
+
+            if (cfg.fbUrl) {
+                try {
+                    const res = await fetch(`${cfg.fbUrl}/destinations.json`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(destinationsData)
+                    });
+                    if (res.ok) syncedAny = true;
+                } catch (e) {}
             }
-            try {
-                const jsonStr = JSON.stringify(destinationsData, null, 2);
-                const base64Json = btoa(unescape(encodeURIComponent(jsonStr)));
-                await uploadFileToGitHub('wisata-data.json', base64Json, 'Update data wisata publik');
-                showToast('✅ Berhasil dipublikasikan ke GitHub untuk semua pengunjung!');
+
+            if (cfg.token) {
+                try {
+                    const jsonStr = JSON.stringify(destinationsData, null, 2);
+                    const base64Json = btoa(unescape(encodeURIComponent(jsonStr)));
+                    await uploadFileToGitHub('wisata-data.json', base64Json, 'Update data wisata publik');
+                    syncedAny = true;
+                } catch (err) {
+                    showToast('❌ Gagal sinkronisasi GitHub: ' + err.message);
+                    return false;
+                }
+            }
+
+            if (syncedAny) {
+                showToast('✅ Berhasil dipublikasikan ke Cloud untuk seluruh pengunjung!');
                 return true;
-            } catch (err) {
-                showToast('❌ Gagal sinkronisasi GitHub: ' + err.message);
+            } else {
+                showToast('⚠️ Isi URL Firebase Cloud atau GitHub Token di tab Publish Publik agar tampil untuk semua orang.');
                 return false;
             }
         }
 
-        // Kompresi gambar sebelum upload agar ringan & cepat tampil
         function compressImageFile(file, maxWidth = 1000, quality = 0.82) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -1074,49 +1954,47 @@
             });
         }
 
-        // Memuat data publik dari wisata-data.json (jika ada di GitHub) lalu fallback ke localStorage / default
         async function loadDestinationsData() {
             destinationsData = JSON.parse(JSON.stringify(defaultDestinationsData));
+            const cfg = getCloudConfig();
+            let loadedFromRemote = false;
 
-            try {
-                const res = await fetch(`wisata-data.json?t=${Date.now()}`);
-                if (res.ok) {
-                    const remoteData = await res.json();
-                    if (remoteData && typeof remoteData === 'object' && Object.keys(remoteData).length > 0) {
-                        destinationsData = remoteData;
+            if (cfg.fbUrl) {
+                try {
+                    const res = await fetch(`${cfg.fbUrl}/destinations.json?t=${Date.now()}`);
+                    if (res.ok) {
+                        const fbData = await res.json();
+                        if (fbData && typeof fbData === 'object' && Object.keys(fbData).length > 0) {
+                            destinationsData = fbData;
+                            loadedFromRemote = true;
+                        }
                     }
-                }
-            } catch (e) {}
+                } catch (e) {}
+            }
 
-            try {
-                const saved = localStorage.getItem('kendal_wisata_destinations_v19');
-                if (saved) {
-                    destinationsData = JSON.parse(saved);
-                }
-            } catch (e) {}
+            if (!loadedFromRemote) {
+                try {
+                    const res = await fetch(`wisata-data.json?t=${Date.now()}`);
+                    if (res.ok) {
+                        const remoteData = await res.json();
+                        if (remoteData && typeof remoteData === 'object' && Object.keys(remoteData).length > 0) {
+                            destinationsData = remoteData;
+                            loadedFromRemote = true;
+                        }
+                    }
+                } catch (e) {}
+            }
+
+            if (!loadedFromRemote) {
+                try {
+                    const saved = localStorage.getItem('kendal_wisata_destinations_v19');
+                    if (saved) {
+                        destinationsData = JSON.parse(saved);
+                    }
+                } catch (e) {}
+            }
 
             renderDestinationsGrid();
-        }
-
-        function loadBookingsFromStorage() {
-            try {
-                ticketBookings = JSON.parse(localStorage.getItem('kendal_wisata_bookings_v1') || '[]');
-            } catch (e) {
-                ticketBookings = [];
-            }
-            updateTicketBadgeCount();
-        }
-
-        function saveBookingsToStorage() {
-            try {
-                localStorage.setItem('kendal_wisata_bookings_v1', JSON.stringify(ticketBookings));
-            } catch (e) {}
-            updateTicketBadgeCount();
-        }
-
-        function updateTicketBadgeCount() {
-            const badge = document.getElementById('ticket-badge-count');
-            if (badge) badge.textContent = ticketBookings.length;
         }
 
         let secretClickCount = 0;
@@ -1168,18 +2046,23 @@
                 savedPhotos = JSON.parse(localStorage.getItem('kendal_wisata_photos_v19') || '{}');
             } catch (e) {}
 
+            const selectedDate = document.getElementById('book-tanggal')?.value || '';
+
             Object.keys(destinationsData).forEach(id => {
                 const d = destinationsData[id];
                 if (currentActiveFilter !== 'semua' && d.filterCat !== currentActiveFilter) {
                     return;
                 }
 
+                const quotaInfo = getRemainingQuota(id, selectedDate);
+                const isSoldOut = quotaInfo.remaining <= 0;
+
                 const fallbackInfo = defaultPhotos[id] || { 
                     url: 'images/curug-sewu.jpg', 
                     rootFile: 'curug-sewu.jpg',
                     fallbackUrl: ''
                 };
-                const imgSrc = savedPhotos[id] || d.customPhoto || fallbackInfo.url;
+                const imgSrc = d.customPhoto || savedPhotos[id] || fallbackInfo.url;
                 const rootFile = fallbackInfo.rootFile || '';
                 const fallbackUrl = fallbackInfo.fallbackUrl || '';
 
@@ -1200,11 +2083,15 @@
                     `;
                 }
 
+                const quotaPillHTML = isSoldOut 
+                    ? `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-700 font-bold text-[11px]">🔴 Tiket Habis</span>`
+                    : `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-[11px]">🟢 Sisa ${quotaInfo.remaining} Tiket</span>`;
+
                 card.innerHTML = `
                     <div>
                         <div class="relative h-60 overflow-hidden bg-slate-900">
                             ${adminEditButtonHTML}
-                            <img src="${imgSrc}" onerror="handleImageError(this, '${d.name.replace(/'/g, "\\'")}', '0f766e', '${rootFile}', '${fallbackUrl}')" alt="${d.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            <img src="${imgSrc}" onerror="handleImageError(this, '${d.name.replace(/'/g, "\\'")}', '0f766e', '${rootFile}', '${fallbackUrl}')" alt="${d.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 ${isSoldOut ? 'grayscale-[40%]' : ''}">
                             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
                             <span class="absolute top-4 right-4 px-3 py-1 rounded-full ${d.badgeColor || 'bg-teal-600/90'} text-white font-semibold text-xs backdrop-blur-md shadow-md">${d.badgeLabel || d.category}</span>
                             <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end gap-2">
@@ -1216,6 +2103,10 @@
                             </div>
                         </div>
                         <div class="p-6 space-y-4">
+                            <div class="flex items-center justify-between">
+                                ${quotaPillHTML}
+                                <span class="text-[11px] text-slate-400 font-medium">🗺️ Tersedia Peta Lokasi</span>
+                            </div>
                             <p class="text-slate-600 text-sm line-clamp-2 leading-relaxed">${d.desc}</p>
                             <div class="flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-4">
                                 <div>
@@ -1231,10 +2122,10 @@
                     </div>
                     <div class="px-6 pb-6 pt-2 flex gap-2">
                         <button type="button" onclick="openDetailModal('${id}')" class="flex-1 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-display font-bold text-xs uppercase tracking-wider transition">
-                            Detail
+                            Detail & Maps
                         </button>
-                        <button type="button" onclick="selectDestinationForBooking('${id}')" class="flex-1 py-3 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-display font-bold text-xs uppercase tracking-wider transition shadow-sm">
-                            🎟️ Pesan Tiket
+                        <button type="button" onclick="selectDestinationForBooking('${id}')" class="flex-1 py-3 rounded-2xl ${isSoldOut ? 'bg-slate-300 text-slate-600' : 'bg-teal-600 hover:bg-teal-700 text-white shadow-sm'} font-display font-bold text-xs uppercase tracking-wider transition">
+                            ${isSoldOut ? 'Habis' : '🎟️ Pesan Tiket'}
                         </button>
                     </div>
                 `;
@@ -1247,12 +2138,15 @@
             const selectEl = document.getElementById('book-destinasi');
             if (!selectEl) return;
             const currentVal = selectEl.value;
+            const selectedDate = document.getElementById('book-tanggal')?.value || '';
             selectEl.innerHTML = '';
             Object.keys(destinationsData).forEach(id => {
                 const d = destinationsData[id];
+                const q = getRemainingQuota(id, selectedDate);
                 const opt = document.createElement('option');
                 opt.value = id;
-                opt.textContent = `${d.name} — Mulai Rp ${(d.priceWeekday || 10000).toLocaleString('id-ID')}`;
+                const statusLabel = q.remaining <= 0 ? '[TIKET HABIS]' : `[Sisa ${q.remaining} Tiket]`;
+                opt.textContent = `${d.name} — Rp ${(d.priceWeekday || 10000).toLocaleString('id-ID')} ${statusLabel}`;
                 selectEl.appendChild(opt);
             });
             if (destinationsData[currentVal]) {
@@ -1261,10 +2155,196 @@
             updateBookingSummary();
         }
 
+        // LOGIKA ASISTEN VIRTUAL WISATA AI CERDAS
+        let aiConversationHistory = [];
+
+        function toggleAiChat() {
+            const win = document.getElementById('ai-chat-window');
+            if (win) win.classList.toggle('hidden');
+        }
+
+        function resetAiChatHistory() {
+            aiConversationHistory = [];
+            const msgContainer = document.getElementById('ai-chat-messages');
+            if (msgContainer) {
+                msgContainer.innerHTML = `
+                    <div class="bg-white border border-slate-200 p-3.5 rounded-2xl rounded-tl-none text-slate-700 shadow-sm space-y-2 leading-relaxed">
+                        <p class="font-bold text-teal-800">Percakapan direset! ✨</p>
+                        <p>Silakan tanyakan kembali rekomendasi destinasi, sisa kuota tiket publik real-time, lokasi maps, atau kuliner khas Kabupaten Kendal.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function sendQuickAiPrompt(text) {
+            const input = document.getElementById('ai-chat-input');
+            if (input) {
+                input.value = text;
+                handleAiChatSubmit(new Event('submit'));
+            }
+        }
+
+        function formatAiMarkdownResponse(rawText) {
+            let safe = rawText
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+            safe = safe.replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-900 font-bold">$1</strong>');
+            safe = safe.replace(/\n/g, '<br>');
+            return safe;
+        }
+
+        function generateSmartLocalFallback(query) {
+            const q = query.toLowerCase();
+            const selectedDate = document.getElementById('book-tanggal')?.value || '';
+            if (q.includes('harga') || q.includes('tiket') || q.includes('biaya') || q.includes('kuota') || q.includes('sisa')) {
+                let lines = ['Berikut **Harga & Sisa Kuota Tiket Publik** destinasi di Kendal:\n'];
+                Object.keys(destinationsData).forEach(id => {
+                    const d = destinationsData[id];
+                    const qInfo = getRemainingQuota(id, selectedDate);
+                    const statusStr = qInfo.remaining <= 0 ? '🔴 HABIS' : `🟢 Sisa ${qInfo.remaining} tiket`;
+                    lines.push(`• **${d.name}**: Rp ${(d.priceWeekday || 10000).toLocaleString('id-ID')} (${statusStr})`);
+                });
+                lines.push(`\n💬 Konfirmasi WhatsApp Loket: **0895411366802**`);
+                return lines.join('\n');
+            }
+            if (q.includes('itinerary') || q.includes('1 hari') || q.includes('rencana') || q.includes('keluarga')) {
+                return `Berikut rekomendasi **Itinerary Wisata Keluarga 1 Hari di Kendal**:\n\n` +
+                       `🌅 **08.00 - 11.00 WIB (Pagi Sejuk):** Kunjungi **Kebun Teh Medini** atau **Hutan Pinus Nglimut** di Limbangan untuk menikmati udara pegunungan.\n` +
+                       `🍲 **12.00 - 13.30 WIB (Makan Siang):** Cicipi kuliner khas Kendal seperti **Sumpil**, **Brongkos**, atau **Sate Bumbon**.\n` +
+                       `🌊 **14.30 - 17.00 WIB (Sore Bahari):** Lanjut ke **Pantai Cahaya** (atraksi lumba-lumba & mini zoo) atau menikmati sunset di **Pantai Ngebum**.\n\n` +
+                       `Anda bisa melihat lokasi Google Maps di menu **Detail & Maps** setiap destinasi!`;
+            }
+            if (q.includes('kuliner') || q.includes('makan') || q.includes('oleh')) {
+                return `**Kuliner & Oleh-Oleh Khas Kabupaten Kendal yang Wajib Dicoba:**\n\n` +
+                       `1. **Momoh:** Olahan jeroan sapi berempah khas Kaliwungu yang empuk dan gurih.\n` +
+                       `2. **Sumpil:** Lontong berbentuk segitiga dibungkus daun bambu dengan parutan kelapa pedas manis.\n` +
+                       `3. **Sate Bumbon:** Sate daging sapi khas Pegandon dengan bumbu rempah kacang yang meresap.\n` +
+                       `4. **Bandeng Tanpa Duri (Tandu):** Oleh-oleh khas pesisir Kendal yang praktis untuk keluarga.`;
+            }
+            if (q.includes('alam') || q.includes('gunung') || q.includes('curug') || q.includes('sejuk')) {
+                return `**Rekomendasi Wisata Alam & Pegunungan Terbaik di Kendal:**\n\n` +
+                       `• **Air Terjun Curug Sewu (Patean):** Air terjun bertingkat tertinggi di Jawa Tengah (80m).\n` +
+                       `• **Kebun Teh Medini (Limbangan):** Hamparan perkebunan teh kolonial di lereng Gunung Ungaran.\n` +
+                       `• **Hutan Pinus Nglimut & Curug Lawe Sicepit:** Cocok untuk relaksasi, trekking ringan, dan camping.`;
+            }
+            if (q.includes('pantai') || q.includes('laut') || q.includes('bahari')) {
+                return `**Rekomendasi Wisata Pantai & Bahari di Kendal:**\n\n` +
+                       `• **Pantai Cahaya (Rowosari):** Wisata keluarga terpadu dengan Dolphin Show, Mini Zoo, dan Water King.\n` +
+                       `• **Pantai Ngebum (Kaliwungu):** Favorit untuk menikmati sunrise dan kuliner ikan bakar tepi pantai.\n` +
+                       `• **Pulau Tiban (Patebon):** Sensasi menyeberang perahu nelayan menuju pulau pasir alami.`;
+            }
+            return `Halo! Di Kabupaten Kendal tersedia beragam pilihan wisata unggulan mulai dari **Curug Sewu**, **Pantai Cahaya**, **Kebun Teh Medini**, **Hutan Pinus Nglimut**, **Pantai Ngebum**, hingga **Pulau Tiban**.\n\nUntuk konfirmasi pemesanan tiket bisa langsung kirim ke WhatsApp **0895411366802**!`;
+        }
+
+        function detectDestinationMatch(text) {
+            const q = text.toLowerCase();
+            if (q.includes('curug sewu')) return 'curugsewu';
+            if (q.includes('cahaya')) return 'pantaicahaya';
+            if (q.includes('medini') || q.includes('teh')) return 'kebuntehmedini';
+            if (q.includes('nglimut') || q.includes('pinus')) return 'hutanpinus';
+            if (q.includes('ngebum')) return 'pantaingebum';
+            if (q.includes('tiban') || q.includes('pulau')) return 'pulautiban';
+            if (q.includes('lawe') || q.includes('sicepit')) return 'curuglawesicepit';
+            return null;
+        }
+
+        async function handleAiChatSubmit(event) {
+            event.preventDefault();
+            const input = document.getElementById('ai-chat-input');
+            const msgContainer = document.getElementById('ai-chat-messages');
+            if (!input || !msgContainer) return;
+
+            const userText = input.value.trim();
+            if (!userText) return;
+
+            const userBubble = document.createElement('div');
+            userBubble.className = 'ml-auto max-w-[85%] bg-teal-600 text-white p-3 rounded-2xl rounded-tr-none shadow-sm leading-relaxed';
+            userBubble.textContent = userText;
+            msgContainer.appendChild(userBubble);
+            input.value = '';
+            msgContainer.scrollTop = msgContainer.scrollHeight;
+
+            aiConversationHistory.push({ role: 'user', parts: [{ text: userText }] });
+            if (aiConversationHistory.length > 8) aiConversationHistory = aiConversationHistory.slice(-8);
+
+            const typingBubble = document.createElement('div');
+            typingBubble.className = 'bg-white border border-slate-200 p-3 rounded-2xl rounded-tl-none text-slate-500 italic shadow-sm flex items-center gap-2';
+            typingBubble.innerHTML = '<span class="w-2 h-2 rounded-full bg-teal-500 animate-bounce"></span><span>Pemandu AI sedang berpikir...</span>';
+            msgContainer.appendChild(typingBubble);
+            msgContainer.scrollTop = msgContainer.scrollHeight;
+
+            const selectedDate = document.getElementById('book-tanggal')?.value || '';
+            const liveCatalogSummary = Object.keys(destinationsData).map(id => {
+                const d = destinationsData[id];
+                const qInfo = getRemainingQuota(id, selectedDate);
+                return `- ${d.name} (${d.shortLoc}): Jam ${d.hours}, Tiket Weekday Rp ${d.priceWeekday}, Weekend Rp ${d.priceWeekend}, Sisa Kuota Publik: ${qInfo.remaining}/${qInfo.total} tiket.`;
+            }).join('\n');
+
+            let finalReply = '';
+            try {
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+                const systemPrompt = `Anda adalah Kendal Smart AI Guide, asisten virtual resmi pariwisata Kabupaten Kendal, Jawa Tengah. Jawab dengan ramah, terstruktur, jelas, dan informatif menggunakan bahasa Indonesia. Nomor WhatsApp resmi loket adalah 0895411366802. Gunakan data real-time destinasi & sisa kuota publik berikut sebagai acuan utama:\n${liveCatalogSummary}\n\nKetentuan tiket online di portal ini: Anak-anak (4-12 th) diskon 50%, rombongan >=10 tiket otomatis diskon 10%, kode promo aktif: KENDAL10 (diskon 10%) dan LIBURAN10K (potongan Rp 10.000).`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: aiConversationHistory,
+                        systemInstruction: { parts: [{ text: systemPrompt }] }
+                    })
+                });
+
+                if (!response.ok) throw new Error('API unavailable');
+                const result = await response.json();
+                finalReply = result?.candidates?.[0]?.content?.parts?.[0]?.text || generateSmartLocalFallback(userText);
+            } catch (err) {
+                finalReply = generateSmartLocalFallback(userText);
+            }
+
+            aiConversationHistory.push({ role: 'model', parts: [{ text: finalReply }] });
+
+            typingBubble.classList.remove('italic', 'text-slate-500', 'flex', 'items-center', 'gap-2');
+            typingBubble.classList.add('text-slate-800', 'leading-relaxed');
+            typingBubble.innerHTML = formatAiMarkdownResponse(finalReply);
+
+            const matchedDestId = detectDestinationMatch(userText + ' ' + finalReply);
+            if (matchedDestId && destinationsData[matchedDestId]) {
+                const actionWrap = document.createElement('div');
+                actionWrap.className = 'mt-2.5 flex gap-1.5';
+
+                const mapBtn = document.createElement('button');
+                mapBtn.type = 'button';
+                mapBtn.className = 'flex-1 py-2 px-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-[11px] transition';
+                mapBtn.textContent = '📍 Lihat Maps';
+                mapBtn.onclick = function() {
+                    toggleAiChat();
+                    openDetailModal(matchedDestId);
+                };
+
+                const bookBtn = document.createElement('button');
+                bookBtn.type = 'button';
+                bookBtn.className = 'flex-1 py-2 px-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-[11px] transition';
+                bookBtn.textContent = '🎟️ Pesan Tiket';
+                bookBtn.onclick = function() {
+                    toggleAiChat();
+                    selectDestinationForBooking(matchedDestId);
+                };
+
+                actionWrap.appendChild(mapBtn);
+                actionWrap.appendChild(bookBtn);
+                typingBubble.appendChild(actionWrap);
+            }
+
+            msgContainer.scrollTop = msgContainer.scrollHeight;
+        }
+
         function selectDestinationForBooking(destId) {
             const selectEl = document.getElementById('book-destinasi');
             if (selectEl && destinationsData[destId]) {
                 selectEl.value = destId;
+                switchLoketTab('pesan');
                 updateBookingSummary();
             }
             const section = document.getElementById('pemesanan');
@@ -1283,93 +2363,6 @@
             return day === 0 || day === 6;
         }
 
-        function updateBookingSummary() {
-            const destId = document.getElementById('book-destinasi')?.value;
-            const dateStr = document.getElementById('book-tanggal')?.value;
-            const qty = Math.max(1, parseInt(document.getElementById('book-jumlah')?.value) || 1);
-            const parkingFee = parseInt(document.getElementById('book-parkir')?.value) || 0;
-
-            const d = destinationsData[destId];
-            if (!d) return;
-
-            const weekend = isWeekendDate(dateStr);
-            const unitPrice = weekend ? (d.priceWeekend || d.priceWeekday || 12000) : (d.priceWeekday || 10000);
-            const subtotalTiket = unitPrice * qty;
-            const totalBayar = subtotalTiket + parkingFee;
-
-            document.getElementById('sum-dest-name').textContent = d.name;
-            const badge = document.getElementById('sum-day-badge');
-            if (weekend) {
-                badge.textContent = 'Weekend / Libur';
-                badge.className = 'px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold text-xs';
-            } else {
-                badge.textContent = 'Weekday';
-                badge.className = 'px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 font-bold text-xs';
-            }
-
-            document.getElementById('sum-tanggal').textContent = dateStr || 'Belum dipilih';
-            document.getElementById('sum-harga-satuan').textContent = formatRupiah(unitPrice);
-            document.getElementById('sum-label-qty').textContent = `Subtotal Tiket (${qty} Orang):`;
-            document.getElementById('sum-subtotal-tiket').textContent = formatRupiah(subtotalTiket);
-            document.getElementById('sum-parkir').textContent = formatRupiah(parkingFee);
-            document.getElementById('sum-total-bayar').textContent = formatRupiah(totalBayar);
-        }
-
-        function submitTicketBooking(event) {
-            event.preventDefault();
-            const destId = document.getElementById('book-destinasi').value;
-            const d = destinationsData[destId];
-            if (!d) return;
-
-            const nama = document.getElementById('book-nama').value.trim();
-            const hp = document.getElementById('book-hp').value.trim();
-            const tanggal = document.getElementById('book-tanggal').value;
-            const jumlah = Math.max(1, parseInt(document.getElementById('book-jumlah').value) || 1);
-            const parkir = parseInt(document.getElementById('book-parkir').value) || 0;
-            const metode = document.getElementById('book-metode').value;
-            const catatan = document.getElementById('book-catatan').value.trim();
-
-            const weekend = isWeekendDate(tanggal);
-            const unitPrice = weekend ? (d.priceWeekend || d.priceWeekday || 12000) : (d.priceWeekday || 10000);
-            const totalBayar = (unitPrice * jumlah) + parkir;
-            const bookingCode = 'KDL-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
-
-            const bookingRecord = {
-                code: bookingCode,
-                destId: destId,
-                destName: d.name,
-                nama: nama,
-                hp: hp,
-                tanggal: tanggal,
-                jumlah: jumlah,
-                parkir: parkir,
-                metode: metode,
-                catatan: catatan,
-                total: totalBayar,
-                createdAt: new Date().toLocaleString('id-ID')
-            };
-
-            ticketBookings.unshift(bookingRecord);
-            saveBookingsToStorage();
-            showEticketModal(bookingRecord);
-            showToast('🎉 E-Tiket berhasil diterbitkan!');
-        }
-
-        function showEticketModal(ticket) {
-            document.getElementById('eticket-dest').textContent = ticket.destName;
-            document.getElementById('eticket-code').textContent = ticket.code;
-            document.getElementById('eticket-name').textContent = ticket.nama;
-            document.getElementById('eticket-hp').textContent = ticket.hp;
-            document.getElementById('eticket-date').textContent = ticket.tanggal;
-            document.getElementById('eticket-qty').textContent = `${ticket.jumlah} Orang` + (ticket.parkir > 0 ? ' + Parkir' : '');
-            document.getElementById('eticket-method').textContent = ticket.metode;
-            document.getElementById('eticket-total').textContent = formatRupiah(ticket.total);
-
-            const modal = document.getElementById('eticket-modal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
         function closeEticketModal() {
             const modal = document.getElementById('eticket-modal');
             modal.classList.remove('flex');
@@ -1381,7 +2374,11 @@
             if (!listEl) return;
             listEl.innerHTML = '';
 
-            if (ticketBookings.length === 0) {
+            const displayTickets = myLocalBookingCodes.length > 0 
+                ? globalBookings.filter(b => myLocalBookingCodes.includes(b.code))
+                : globalBookings;
+
+            if (displayTickets.length === 0) {
                 listEl.innerHTML = `
                     <div class="text-center py-10 space-y-3">
                         <div class="text-4xl">🎟️</div>
@@ -1390,16 +2387,17 @@
                     </div>
                 `;
             } else {
-                ticketBookings.forEach((t, idx) => {
+                displayTickets.forEach(t => {
+                    const globalIdx = globalBookings.indexOf(t);
                     const item = document.createElement('div');
                     item.className = 'p-4 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3';
                     item.innerHTML = `
                         <div>
                             <span class="font-mono text-xs font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">${t.code}</span>
                             <h4 class="font-display font-bold text-slate-900 text-base mt-1">${t.destName}</h4>
-                            <p class="text-xs text-slate-500">${t.nama} • ${t.tanggal} • ${t.jumlah} Orang (${formatRupiah(t.total)})</p>
+                            <p class="text-xs text-slate-500">${t.nama} • ${t.tanggal} • ${t.qtyText} (${formatRupiah(t.total)})</p>
                         </div>
-                        <button type="button" onclick="closeMyTicketsModal(); showEticketModal(ticketBookings[${idx}]);" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shrink-0">Lihat E-Tiket</button>
+                        <button type="button" onclick="closeMyTicketsModal(); showEticketModal(globalBookings[${globalIdx}]);" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shrink-0">Lihat E-Tiket</button>
                     `;
                     listEl.appendChild(item);
                 });
@@ -1484,7 +2482,8 @@
         function openAdminDashboard() {
             const modal = document.getElementById('admin-dashboard-modal');
             if (modal) {
-                const cfg = getGitHubConfig();
+                const cfg = getCloudConfig();
+                if (document.getElementById('fb-db-url')) document.getElementById('fb-db-url').value = cfg.fbUrl;
                 document.getElementById('gh-owner').value = cfg.owner;
                 document.getElementById('gh-repo').value = cfg.repo;
                 document.getElementById('gh-token').value = cfg.token;
@@ -1528,17 +2527,17 @@
             const listEl = document.getElementById('admin-bookings-list');
             if (!listEl) return;
             listEl.innerHTML = '';
-            if (ticketBookings.length === 0) {
+            if (globalBookings.length === 0) {
                 listEl.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">Belum ada data pemesanan tiket masuk.</p>';
                 return;
             }
-            ticketBookings.forEach(t => {
+            globalBookings.forEach(t => {
                 const div = document.createElement('div');
                 div.className = 'p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs flex justify-between items-center gap-3';
                 div.innerHTML = `
                     <div>
                         <span class="font-mono font-bold text-teal-700">${t.code}</span> • <span class="font-bold text-slate-900">${t.destName}</span>
-                        <span class="block text-slate-600 mt-0.5">Pemesan: ${t.nama} (${t.hp}) | Tgl: ${t.tanggal} | ${t.jumlah} Org</span>
+                        <span class="block text-slate-600 mt-0.5">Pemesan: ${t.nama} (${t.hp}) | Tgl: ${t.tanggal} | ${t.qtyText}</span>
                     </div>
                     <span class="font-bold text-slate-900 shrink-0">${formatRupiah(t.total)}</span>
                 `;
@@ -1546,25 +2545,44 @@
             });
         }
 
-        function clearAllBookings() {
-            ticketBookings = [];
-            saveBookingsToStorage();
+        async function clearAllBookings() {
+            globalBookings = [];
+            myLocalBookingCodes = [];
+            saveLocalBookingsCache();
+
+            const cfg = getCloudConfig();
+            if (cfg.fbUrl) {
+                try {
+                    await fetch(`${cfg.fbUrl}/bookings.json`, { method: 'DELETE' });
+                } catch (e) {}
+            }
+            if (cfg.token) {
+                try {
+                    const base64Json = btoa('[]');
+                    await uploadFileToGitHub('wisata-bookings.json', base64Json, 'Reset kuota & tiket publik');
+                } catch (e) {}
+            }
+
             renderAdminBookingsList();
-            showToast('Seluruh riwayat pemesanan tiket dihapus.');
+            renderDestinationsGrid();
+            updateBookingSummary();
+            showToast('Riwayat pemesanan dihapus & seluruh kuota publik dipulihkan!');
         }
 
         function renderAdminDestinationsList() {
             const listEl = document.getElementById('admin-dest-list');
             if (!listEl) return;
             listEl.innerHTML = '';
+            const selectedDate = document.getElementById('book-tanggal')?.value || '';
             Object.keys(destinationsData).forEach(id => {
                 const d = destinationsData[id];
+                const qInfo = getRemainingQuota(id, selectedDate);
                 const div = document.createElement('div');
                 div.className = 'flex items-center justify-between p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm';
                 div.innerHTML = `
                     <div>
                         <span class="font-bold text-slate-900 block">${d.name}</span>
-                        <span class="text-xs text-slate-500">${d.shortLoc} • Weekday: Rp ${(d.priceWeekday || 10000).toLocaleString('id-ID')}</span>
+                        <span class="text-xs text-slate-500">${d.shortLoc} • Sisa Kuota Publik: <strong>${qInfo.remaining}/${qInfo.total}</strong></span>
                     </div>
                     <div class="flex items-center gap-2">
                         <button type="button" onclick="openAdminEditDirect('${id}')" class="px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs">✏️ Edit</button>
@@ -1590,6 +2608,7 @@
             document.getElementById('edit-dest-shortloc').value = d.shortLoc || d.location;
             document.getElementById('edit-dest-weekday').value = d.priceWeekday || 10000;
             document.getElementById('edit-dest-weekend').value = d.priceWeekend || 12000;
+            document.getElementById('edit-dest-quota').value = typeof d.dailyQuota === 'number' ? d.dailyQuota : 100;
             document.getElementById('edit-dest-hours').value = d.shortHours || d.hours;
             document.getElementById('edit-dest-parking').value = d.parking || '';
             document.getElementById('edit-dest-desc').value = d.desc || '';
@@ -1604,7 +2623,7 @@
             const id = document.getElementById('edit-dest-id').value;
             showToast('⏳ Memproses & mengunggah foto...');
             const compressedDataUrl = await compressImageFile(file);
-            const cfg = getGitHubConfig();
+            const cfg = getCloudConfig();
             if (cfg.token) {
                 try {
                     const base64Clean = compressedDataUrl.split(',')[1];
@@ -1614,7 +2633,7 @@
                     showToast('✅ Foto terunggah ke GitHub! Klik Simpan & Publikasikan.');
                     return;
                 } catch (err) {
-                    showToast('⚠️ Upload GitHub gagal, memakai penyimpanan lokal.');
+                    showToast('⚠️ Upload GitHub gagal, memakai base64 terkompresi.');
                 }
             }
             document.getElementById('edit-dest-photo').value = compressedDataUrl;
@@ -1626,7 +2645,7 @@
             if (!file) return;
             showToast('⏳ Memproses & mengunggah foto...');
             const compressedDataUrl = await compressImageFile(file);
-            const cfg = getGitHubConfig();
+            const cfg = getCloudConfig();
             if (cfg.token) {
                 try {
                     const base64Clean = compressedDataUrl.split(',')[1];
@@ -1655,8 +2674,10 @@
             destinationsData[id].category = document.getElementById('edit-dest-badge').value;
             destinationsData[id].shortLoc = document.getElementById('edit-dest-shortloc').value;
             destinationsData[id].location = document.getElementById('edit-dest-shortloc').value;
+            destinationsData[id].mapQuery = destinationsData[id].name + ' ' + destinationsData[id].shortLoc;
             destinationsData[id].priceWeekday = parseInt(document.getElementById('edit-dest-weekday').value) || 0;
             destinationsData[id].priceWeekend = parseInt(document.getElementById('edit-dest-weekend').value) || 0;
+            destinationsData[id].dailyQuota = Math.max(0, parseInt(document.getElementById('edit-dest-quota').value) || 0);
             destinationsData[id].shortHours = document.getElementById('edit-dest-hours').value;
             destinationsData[id].hours = document.getElementById('edit-dest-hours').value + ' (Setiap Hari)';
             destinationsData[id].parking = document.getElementById('edit-dest-parking').value;
@@ -1680,7 +2701,7 @@
             renderDestinationsGrid();
             renderAdminDestinationsList();
             cancelEditDestination();
-            await publishDataJsonToGitHub();
+            await publishAllPublicData();
         }
 
         async function deleteDestinationItem(id) {
@@ -1689,7 +2710,7 @@
             renderDestinationsGrid();
             renderAdminDestinationsList();
             showToast('Destinasi dihapus.');
-            await publishDataJsonToGitHub();
+            await publishAllPublicData();
         }
 
         async function submitNewDestination(event) {
@@ -1701,6 +2722,7 @@
             const hours = document.getElementById('new-dest-hours').value;
             const weekday = parseInt(document.getElementById('new-dest-weekday').value) || 10000;
             const weekend = parseInt(document.getElementById('new-dest-weekend').value) || 12000;
+            const quota = Math.max(1, parseInt(document.getElementById('new-dest-quota').value) || 150);
             const customPhoto = document.getElementById('new-dest-photo').value.trim();
             const desc = document.getElementById('new-dest-desc').value;
             const facilities = document.getElementById('new-dest-facilities').value.split(',').map(s => s.trim()).filter(Boolean);
@@ -1715,6 +2737,7 @@
                 ticketLabel: 'Tiket Masuk Mulai',
                 category: filterCat === 'pantai' ? 'Pantai & Bahari' : 'Alam & Pegunungan',
                 location: shortLoc,
+                mapQuery: name + ' ' + shortLoc,
                 hours: hours + ' (Setiap Hari)',
                 ticket: `Rp ${weekday.toLocaleString('id-ID')} (Weekday) / Rp ${weekend.toLocaleString('id-ID')} (Weekend)`,
                 parking: 'Motor Rp 3.000 | Mobil Rp 5.000',
@@ -1723,6 +2746,7 @@
                 tips: 'Jaga kebersihan lokasi dan patuhi aturan setempat.',
                 priceWeekday: weekday,
                 priceWeekend: weekend,
+                dailyQuota: quota,
                 customPhoto: customPhoto || ''
             };
 
@@ -1731,7 +2755,7 @@
             renderAdminDestinationsList();
             switchAdminTab('destinasi');
             document.getElementById('admin-add-form').reset();
-            await publishDataJsonToGitHub();
+            await publishAllPublicData();
         }
 
         async function resetAllAdminData() {
@@ -1743,7 +2767,7 @@
             renderDestinationsGrid();
             renderAdminDestinationsList();
             showToast('Semua data dikembalikan ke default.');
-            await publishDataJsonToGitHub();
+            await publishAllPublicData();
         }
 
         function formatRupiah(angka) {
@@ -1776,7 +2800,7 @@
                 rootFile: 'curug-sewu.jpg',
                 fallbackUrl: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800&q=80'
             };
-            const imgSrc = savedPhotos[id] || d.customPhoto || fallbackInfo.url;
+            const imgSrc = d.customPhoto || savedPhotos[id] || fallbackInfo.url;
 
             const modalImg = document.getElementById('modal-img');
             delete modalImg.dataset.triedRoot;
@@ -1789,6 +2813,30 @@
             document.getElementById('modal-title').textContent = d.name;
             document.getElementById('modal-location').textContent = d.location;
             document.getElementById('modal-hours').textContent = d.hours;
+
+            const selectedDate = document.getElementById('book-tanggal')?.value || '';
+            const quotaInfo = getRemainingQuota(id, selectedDate);
+            const quotaEl = document.getElementById('modal-quota-badge');
+            if (quotaEl) {
+                if (quotaInfo.remaining <= 0) {
+                    quotaEl.textContent = 'Tiket Habis (0 Tersisa)';
+                    quotaEl.className = 'font-bold text-rose-600';
+                } else {
+                    quotaEl.textContent = `Tersisa ${quotaInfo.remaining} dari ${quotaInfo.total} Tiket`;
+                    quotaEl.className = 'font-bold text-emerald-700';
+                }
+            }
+
+            const queryStr = encodeURIComponent(d.mapQuery || (d.name + ' ' + d.location));
+            const mapIframe = document.getElementById('modal-maps-iframe');
+            const mapLink = document.getElementById('modal-maps-link');
+            if (mapIframe) {
+                mapIframe.src = `https://maps.google.com/maps?q=${queryStr}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
+            }
+            if (mapLink) {
+                mapLink.href = `https://www.google.com/maps/search/?api=1&query=${queryStr}`;
+            }
+
             document.getElementById('modal-ticket').textContent = d.ticket;
             document.getElementById('modal-parking').textContent = d.parking;
             document.getElementById('modal-desc').textContent = d.desc;
@@ -1796,6 +2844,13 @@
 
             const bookBtn = document.getElementById('modal-book-btn');
             if (bookBtn) {
+                if (quotaInfo.remaining <= 0) {
+                    bookBtn.textContent = '🚫 Kuota Tiket Hari Ini Habis';
+                    bookBtn.className = 'w-full py-3.5 rounded-2xl bg-slate-300 text-slate-600 font-display font-bold text-sm transition';
+                } else {
+                    bookBtn.textContent = `🎟️ Pesan Tiket Destinasi Ini (Sisa ${quotaInfo.remaining} Tiket)`;
+                    bookBtn.className = 'w-full py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-display font-bold text-sm shadow-lg shadow-teal-600/25 transition';
+                }
                 bookBtn.onclick = function() {
                     closeDetailModal();
                     selectDestinationForBooking(id);
@@ -1829,13 +2884,13 @@
             document.getElementById('photo-file-input').value = '';
             document.getElementById('photo-upload-status').classList.add('hidden');
             
-            const cfg = getGitHubConfig();
+            const cfg = getCloudConfig();
             const badge = document.getElementById('photo-github-badge');
-            if (cfg.token) {
-                badge.innerHTML = `<span>✅ Terhubung ke <strong>${cfg.owner}/${cfg.repo}</strong>: Foto langsung tampil publik!</span>`;
+            if (cfg.fbUrl || cfg.token) {
+                badge.innerHTML = `<span>✅ Terhubung ke Cloud Publik: Foto langsung tampil untuk semua pengunjung!</span>`;
                 badge.className = 'p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-center justify-between gap-2';
             } else {
-                badge.innerHTML = `<span>⚠️ Belum terhubung GitHub Token (foto baru hanya tampil di HP ini).</span><button type="button" onclick="closePhotoModal(); openAdminDashboard(); switchAdminTab('github');" class="px-2.5 py-1 rounded-lg bg-teal-700 text-white font-bold text-[11px] shrink-0">Hubungkan</button>`;
+                badge.innerHTML = `<span>⚠️ Belum terhubung Cloud/GitHub (foto baru hanya tampil di HP ini).</span><button type="button" onclick="closePhotoModal(); openAdminDashboard(); switchAdminTab('github');" class="px-2.5 py-1 rounded-lg bg-teal-700 text-white font-bold text-[11px] shrink-0">Hubungkan</button>`;
                 badge.className = 'p-3 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center justify-between gap-2';
             }
 
@@ -1858,8 +2913,8 @@
             statusEl.classList.remove('hidden');
             statusEl.textContent = '⏳ Mengompresi & mengunggah foto agar tampil publik...';
 
-            const compressedDataUrl = await compressImageFile(file);
-            const cfg = getGitHubConfig();
+            const compressedDataUrl = await compressImageFile(file, 800, 0.78);
+            const cfg = getCloudConfig();
 
             if (cfg.token) {
                 try {
@@ -1873,16 +2928,14 @@
                     await savePhotoToStorage(id, publicUrl, true);
                     statusEl.classList.add('hidden');
                     return;
-                } catch (err) {
-                    showToast('⚠️ Gagal upload ke GitHub, menyimpan sementara di perangkat.');
-                }
+                } catch (err) {}
             }
 
             if (destinationsData[id]) {
                 destinationsData[id].customPhoto = compressedDataUrl;
                 saveDestinationsToStorage();
             }
-            await savePhotoToStorage(id, compressedDataUrl, false);
+            await savePhotoToStorage(id, compressedDataUrl, Boolean(cfg.fbUrl));
             statusEl.classList.add('hidden');
         }
 
@@ -1909,9 +2962,9 @@
             renderDestinationsGrid();
             closePhotoModal();
             if (syncPublic) {
-                await publishDataJsonToGitHub();
+                await publishAllPublicData();
             } else {
-                showToast('Foto diperbarui di perangkat ini! Hubungkan GitHub Token untuk publik.');
+                showToast('Foto diperbarui di perangkat ini! Hubungkan Cloud/GitHub untuk publik.');
             }
         }
 
@@ -1929,7 +2982,7 @@
             renderDestinationsGrid();
             closePhotoModal();
             showToast('Foto dikembalikan ke awal.');
-            await publishDataJsonToGitHub();
+            await publishAllPublicData();
         }
 
         document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -1946,7 +2999,7 @@
             });
         });
 
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             const dateInput = document.getElementById('book-tanggal');
             if (dateInput) {
                 const tomorrow = new Date();
@@ -1955,9 +3008,14 @@
                 dateInput.value = isoDate;
                 dateInput.min = new Date().toISOString().split('T')[0];
             }
-            loadBookingsFromStorage();
+            updateCloudStatusBadge();
             checkAdminSession();
-            loadDestinationsData();
+            await loadDestinationsData();
+            await syncGlobalBookingsFromCloud(false);
+
+            setInterval(() => {
+                syncGlobalBookingsFromCloud(false);
+            }, 20000);
         });
     </script>
 </body>
